@@ -1,15 +1,15 @@
-# Project: ows-qt-console
-# File name: ows-qt-console.pro
+# Project: ows-cli
+# File name: ows-cli.pro
 # Description: describes the project and how to build it
 #
-# @author Mathieu Grzybek on 20??-??-??
+# @author Mathieu Grzybek on 2013-06-06
 # @copyright 20?? Mathieu Grzybek. All rights reserved.
 # @version $Id: code-gpl-license.txt,v 1.2 2004/05/04 13:19:30 garry Exp $
 #
 # @see The GNU Public License (GPL) version 3 or higher
 #
 #
-# ? is free software; you can redistribute it and/or modify
+# ows-cli is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 3 of the License, or
 # (at your option) any later version.
