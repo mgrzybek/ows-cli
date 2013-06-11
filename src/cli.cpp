@@ -25,7 +25,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "main.h"
+#include "cli.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -252,6 +252,7 @@ int	cmd_monitor_waiting_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *com
 
 	return CLI_OK;
 }
+
 ///////////////////////////////////////////////////////////////////////////////
 
 int	cmd_connect(struct cli_def *cli, UNUSED(const char *command), char *argv[], int argc) {

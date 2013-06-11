@@ -41,7 +41,7 @@ INCLUDEPATH	+= include \
 	../open-workload-scheduler/include \
 	../open-workload-scheduler/src/gen-cpp
 
-SOURCES		+= src/main.cpp \
+SOURCES		+= src/cli.cpp \
 	src/printing.cpp \
 	src/text_processing.cpp \
 	src/libcli.c \
@@ -51,7 +51,7 @@ SOURCES		+= src/main.cpp \
 	../open-workload-scheduler/src/rpc_client.cpp \
 	../open-workload-scheduler/src/convertions.cpp
 
-HEADERS		+= include/main.h \
+HEADERS		+= include/cli.h \
 	include/printing.h \
 	include/text_processing.h \
 	include/libcli.h \
