@@ -125,6 +125,24 @@ int	cmd_get_ready_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command),
 int	cmd_get_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc));
 
 /**
+ * monitor_failed_jobs
+ *
+ * Implements the monitor_failed_jobs RPC call
+ *
+ * @return	CLI_OK or CLI_ERROR
+ */
+int	cmd_monitor_failed_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc));
+
+/**
+ * monitor_waiting_jobs
+ *
+ * Implements the monitor_waiting_jobs RPC call
+ *
+ * @return	CLI_OK or CLI_ERROR
+ */
+int	cmd_monitor_waiting_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc));
+
+/**
  * cmd_connect
  *
  * Initializes the connection

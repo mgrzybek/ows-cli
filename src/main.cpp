@@ -52,6 +52,29 @@ try { \
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#define RPC_EXEC_INTEGER_RETURN(command) \
+try { \
+	if ( client.get_handler() == NULL ) { \
+		printf("Not connected!\n"); \
+		return CLI_ERROR; \
+	} \
+	result = command;\
+} catch (const rpc::ex_routing& e) { \
+	std::cerr << "ex::routing: " << e.msg << std::endl; \
+	return CLI_ERROR; \
+} catch (const rpc::ex_node& e) { \
+	std::cerr << "ex::node: " << e.msg << std::endl; \
+	return CLI_ERROR; \
+} catch (const rpc::ex_processing& e) { \
+	std::cerr << "ex_processing: " << e.msg << std::endl; \
+	return CLI_ERROR; \
+} catch (...) { \
+	std::cerr << "Undefined exception occured" << std::endl; \
+	return CLI_ERROR; \
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 bool	cli_add_commands(struct cli_def* cli) {
 	struct cli_command*	c = NULL;
 
@@ -74,6 +97,11 @@ bool	cli_add_commands(struct cli_def* cli) {
 	cli_register_command(cli, c, "nodes", cmd_get_nodes, PRIVILEGE_UNPRIVILEGED, MODE_CONNECTED, "Show the available nodes");
 	cli_register_command(cli, c, "jobs", cmd_get_jobs, PRIVILEGE_UNPRIVILEGED, MODE_CONNECTED, "Show the available jobs");
 	cli_register_command(cli, c, "ready jobs", cmd_get_ready_jobs, PRIVILEGE_UNPRIVILEGED, MODE_CONNECTED, "Show the ready jobs");
+
+	// monitor
+	c = cli_register_command(cli, NULL, "monitor", NULL, PRIVILEGE_UNPRIVILEGED, MODE_CONNECTED, NULL);
+	cli_register_command(cli, c, "failed", cmd_monitor_failed_jobs, PRIVILEGE_UNPRIVILEGED, MODE_CONNECTED, "Show the number of failed jobs");
+	cli_register_command(cli, c, "waiting", cmd_monitor_waiting_jobs, PRIVILEGE_UNPRIVILEGED, MODE_CONNECTED, "Show the number of waiting jobs");
 
 	c = NULL;
 	return true;
@@ -201,6 +229,29 @@ int	cmd_get_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSE
 	return CLI_OK;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+int	cmd_monitor_failed_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc)) {
+	rpc::integer	result = 0;
+
+	RPC_EXEC_INTEGER_RETURN(client.get_handler()->monitor_failed_jobs(local_node.domain_name, local_node, target_node))
+
+	std::cout << result << std::endl;
+
+	return CLI_OK;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+int	cmd_monitor_waiting_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc)) {
+	rpc::integer	result = 0;
+
+	RPC_EXEC_INTEGER_RETURN(client.get_handler()->monitor_waiting_jobs(local_node.domain_name, local_node, target_node))
+
+	std::cout << result << std::endl;
+
+	return CLI_OK;
+}
 ///////////////////////////////////////////////////////////////////////////////
 
 int	cmd_connect(struct cli_def *cli, UNUSED(const char *command), char *argv[], int argc) {
