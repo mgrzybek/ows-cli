@@ -66,7 +66,8 @@ bool	cli_add_commands(struct cli_def* cli) {
 
 	// remove
 	c = cli_register_command(cli, NULL, "remove", NULL, PRIVILEGE_PRIVILEGED, MODE_CONNECTED, NULL);
-	cli_register_command(cli, c, "node", cmd_remove_node, PRIVILEGE_PRIVILEGED, MODE_CONNECTED, "remove a node");
+	cli_register_command(cli, c, "job", cmd_remove_job, PRIVILEGE_PRIVILEGED, MODE_CONNECTED, "Remove a job");
+	cli_register_command(cli, c, "node", cmd_remove_node, PRIVILEGE_PRIVILEGED, MODE_CONNECTED, "Remove a node");
 
 	// get
 	c = cli_register_command(cli, NULL, "get", NULL, PRIVILEGE_UNPRIVILEGED, MODE_CONNECTED, NULL);
@@ -150,7 +151,26 @@ int	cmd_remove_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), ch
 	node_to_remove.name = argv[0];
 	node_to_remove.domain_name = local_node.domain_name;
 
-	RPC_EXEC(client.get_handler()->add_node(local_node.domain_name, local_node, target_node, node_to_remove))
+	RPC_EXEC(client.get_handler()->remove_node(local_node.domain_name, local_node, target_node, node_to_remove))
+
+	return CLI_OK;
+}
+
+int	cmd_remove_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc) {
+	rpc::t_job	job_to_remove;
+//	boost::regex	spaces("[[:space:]]+", boost::regex::perl);
+//	boost::regex	comment("^#.*?$", boost::regex::perl);
+//	boost::regex	comment_endl("#.*?$", boost::regex::perl);
+
+	if ( argc != 1 ) {
+		std::cerr << "Missing one argument" << std::endl;
+		return CLI_ERROR_ARG;
+	}
+
+	job_to_remove.name = argv[0];
+	job_to_remove.node_name = target_node.name;
+
+	RPC_EXEC(client.get_handler()->remove_job(local_node.domain_name, local_node, job_to_remove))
 
 	return CLI_OK;
 }

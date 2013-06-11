@@ -96,6 +96,17 @@ int	cmd_add_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), char 
 int	cmd_remove_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc);
 
 /**
+ * cmd_remove_job
+ *
+ * Implements the remove_node RPC call
+ *
+ * @arg	argv	the arguments
+ * @arg argc	the number of arguments
+ * @return	CLI_OK or CLI_ERROR
+ */
+int	cmd_remove_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc);
+
+/**
  * cmd_get_ready_jobs
  *
  * Implements the get_ready_jobs RPC call
