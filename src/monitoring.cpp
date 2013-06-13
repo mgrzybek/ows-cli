@@ -190,7 +190,9 @@ int	main(const int argc, char const* argv[]) {
 		return_code = MON_CRITICAL;
 	}
 
+	// Let's remove the last ';'
 	perfdata.resize(perfdata.size() - 1);
+
 	std::cout << "|" << perfdata;
 
 	return return_code;

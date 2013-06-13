@@ -29,8 +29,8 @@ CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 
-QMAKE_CXX_FLAGS	+= -O2
-QMAKE_C_FLAGS	+= -O2
+QMAKE_CXX_FLAGS	+= -O2 -Wall -Wextra -Werror
+QMAKE_C_FLAGS	+= -O2 -Wall -Wextra -Werror
 
 include(qmake_conf/linux.pro)
 include(qmake_conf/macx.pro)
