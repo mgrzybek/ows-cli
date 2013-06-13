@@ -9,7 +9,7 @@ ows-cli <domain_name> <hostname>
 Architecture
 ------------
 
-This program is based on both "libcli":https://github.com/dparrish/libcli?source=cc and "OWS":https://github.com/MisterG/open-workload-scheduler
+This program is based on both [libcli] [3] and [OWS] [1]
 
 Buidling
 --------
@@ -86,18 +86,22 @@ Buidling
 
 6. Generate the Thrift's source code
 > cd open-workload-scheduler/src
+
 > thrift --gen cpp model.thrift 
 
 7. Patch the generated sources
 > cd ..
+
 > patch -p1 < patch/platform.path
 
 8. Download [ows-cli] [2]
 > cd ..
+
 > git clone  git://github.com/MisterG/ows-cli.git
 
 9. Create the Makefile according to the binary you want to build
 > cd ows-cli
+
 > qmake
 
 10. Run make
@@ -105,4 +109,4 @@ Buidling
 
 [1]: https://github.com/MisterG/open-workload-scheduler "open-workload-scheduler"
 [2]: https://github.com/MisterG/ows-cli "ows-cli"
-
+[3]: https://github.com/dparrish/libcli?source=cc "libcli"
