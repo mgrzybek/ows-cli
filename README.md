@@ -81,7 +81,7 @@ Buidling
 3. Install thrift
 4. Install QMake
 
-5. Download "open-workload-scheduler":https://github.com/MisterG/open-workload-scheduler
+5. Download [open-workload-scheduler] [1]
 > git clone git://github.com/MisterG/open-workload-scheduler.git
 
 6. Generate the Thrift's source code
@@ -92,7 +92,7 @@ Buidling
 > cd ..
 > patch -p1 < patch/platform.path
 
-8. Download "ows-cli":open-workload-scheduler":https://github.com/MisterG/ows-cli"
+8. Download [ows-cli] [2]
 > cd ..
 > git clone  git://github.com/MisterG/ows-cli.git
 
@@ -102,4 +102,7 @@ Buidling
 
 10. Run make
 > make
+
+[1]: https://github.com/MisterG/open-workload-scheduler "open-workload-scheduler"
+[2]: https://github.com/MisterG/ows-cli "ows-cli"
 
