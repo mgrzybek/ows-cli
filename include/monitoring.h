@@ -29,6 +29,8 @@
 #define MAIN_H
 
 #include <iostream>
+#include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "rpc_client.h"
 
@@ -43,6 +45,19 @@
  * Prints the usage message
  */
 void	usage(void);
+
+/**
+ * get_metric
+ *
+ * @param result	: the result to get
+ * @param metric	: the name of the metric
+ * @param client	: the connection object
+ * @param local_node	: the caller's identity
+ * @param target_node	: the target
+ *
+ * @return	true on success
+ */
+bool	get_metric(rpc::integer& result, const std::string& metric, Rpc_Client& client, const rpc::t_node& local_node, const rpc::t_node& target_node);
 
 /**
  * main
