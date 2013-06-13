@@ -194,6 +194,12 @@ void	clear_node(rpc::t_node _return);
  */
 bool	set_prompt(char* prompt, const char* new_prompt);
 
+/**
+ * usage
+ *
+ * Prints the usage of the program
+ */
+void	usage(void);
 
 /**
  * main

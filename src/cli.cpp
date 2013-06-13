@@ -354,13 +354,31 @@ bool	set_prompt(char* prompt, const char* new_prompt) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+void	usage() {
+	std::cout << "ows-cli [(<domain_name> <hostname>) | -]" << std::endl;
+	std::cout << "	<domain_name>	: the domain's name to connect against" << std::endl;
+	std::cout << "	<hostname>	: the node to connect against" << std::endl;
+	std::cout << "	-		: read stdin as input" << std::endl;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 int	main(const int argc, char const* argv[]) {
 	struct cli_def*	cli = NULL;
 	bool	interactive = true;
 
 	/*
 	 * Args checking
-	 * Do you open stdin or use a shell?
+	 * Do we print help or continue?
+	 */
+	if ( argc == 2 && strcmp(argv[1], "-h") == 0 ) {
+		usage();
+		return EXIT_SUCCESS;
+	}
+
+	/*
+	 * Args checking
+	 * Do we open stdin or use a shell?
 	 */
 	if ( argc == 2 && strcmp(argv[1], "-") == 0 ) {
 		interactive = false;
