@@ -1,20 +1,23 @@
-Open Workload Scheduler - Command Line Interface
-================================================
+# Open Workload Scheduler - Command Line Interface
 
-Usage
------
+## Usage
 
-ows-cli <domain_name> <hostname>
+```
+$ ./ows-cli -h
+ows-cli [(<domain_name> <hostname>) | -]
+	<domain_name>	: the domain's name to connect against
+	<hostname>		: the node to connect against
+	-				: read stdin as input
+$
+```
 
-Architecture
-------------
+## Architecture
 
-This program is based on both [libcli] [3] and [OWS] [1]
+This program is based on both [libcli] [3] and [OWS] [1].
 
-Buidling
---------
+## Buidling
 
-# List of includes
+### List of includes
 
 * algorithm
 * boost/algorithm/string.hpp
@@ -74,38 +77,51 @@ Buidling
 * unistd.h
 * vector
 
-# Commands
+### Commands
 
-1. Install boost
-2. Install readline
-3. Install thrift
-4. Install QMake
+* Install boost
+* Install readline
+* Install thrift
+* Install QMake
+* Download [open-workload-scheduler] [1]
 
-5. Download [open-workload-scheduler] [1]
-> git clone git://github.com/MisterG/open-workload-scheduler.git
+```
+$ git clone git://github.com/MisterG/open-workload-scheduler.git
+```
 
-6. Generate the Thrift's source code
-> cd open-workload-scheduler/src
+* Generate the Thrift's source code
 
-> thrift --gen cpp model.thrift 
+```
+$ cd open-workload-scheduler/src
+$ thrift --gen cpp model.thrift 
+```
 
-7. Patch the generated sources
-> cd ..
+* Patch the generated sources
 
-> patch -p1 < patch/platform.path
+```
+$ cd ..
+$ patch -p1 < patch/platform.path
+```
 
-8. Download [ows-cli] [2]
-> cd ..
+* Download [ows-cli] [2]
 
-> git clone  git://github.com/MisterG/ows-cli.git
+```
+$ cd ..
+$ git clone  git://github.com/MisterG/ows-cli.git
+```
 
-9. Create the Makefile according to the binary you want to build
-> cd ows-cli
+* Create the Makefile according to the binary you want to build
 
-> qmake
+```
+$ cd ows-cli
+$ qmake
+```
 
-10. Run make
-> make
+* Run make
+
+```
+$ make
+```
 
 [1]: https://github.com/MisterG/open-workload-scheduler "open-workload-scheduler"
 [2]: https://github.com/MisterG/ows-cli "ows-cli"
