@@ -184,6 +184,53 @@ int	cmd_remove_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), ch
 	return CLI_OK;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+int	cmd_add_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc) {
+	rpc::t_job	job_to_add;
+	std::string	line;
+	std::string	key;
+	std::string	value;
+	boost::regex	comment("^#.*?$", boost::regex::perl);
+
+	std::cout << "argc == " << argc << std::endl;
+
+	if ( argc != 0 ) {
+		// Parse the arguments
+		for ( int i = 0 ; i < argc ; i++ ) {
+			line = argv[i];
+
+			if ( boost::regex_match(line, comment) == true || line.length() == 0 )
+				continue;
+
+			if ( split_line('=',line, key, value) == false ) {
+				return CLI_ERROR_ARG;
+			}
+
+			update_job(key, value, job_to_add);
+		}
+	} else {
+		// Parse std::cin
+		while ( std::cin >> line) {
+			if ( boost::regex_match(line, comment) == true || line.length() == 0 )
+				continue;
+
+			if ( split_line('=', line, key, value) == false )
+				return CLI_ERROR_ARG;
+
+			update_job(key, value, job_to_add);
+		}
+
+		std::cerr << "Reading the input is not implemented yet!" << std::endl;
+		return CLI_ERROR_ARG;
+	}
+
+	// TODO: change add_job -> add target_node argument
+	RPC_EXEC(client.get_handler()->add_job(local_node.domain_name, local_node, target_node, job_to_add))
+
+	return CLI_OK;
+}
+
 int	cmd_remove_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc) {
 	rpc::t_job	job_to_remove;
 //	boost::regex	spaces("[[:space:]]+", boost::regex::perl);
