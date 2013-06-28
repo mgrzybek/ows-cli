@@ -27,7 +27,7 @@
 
 #include "text_processing.h"
 
-void	update_node(const std::string& key, const std::string& value, rpc::t_node node) {
+void	update_node(const std::string& key, const std::string& value, rpc::t_node& node) {
 	if ( key.compare("name") == 0 ) {
 		node.name = value;
 	} else if ( key.compare("weight") == 0 ) {
@@ -41,6 +41,41 @@ void	update_node(const std::string& key, const std::string& value, rpc::t_node n
 	}
 }
 
+void	update_job(const std::string& key, const std::string& value, rpc::t_job& job) {
+	if ( key.compare("name") == 0 ) {
+		job.name = value;
+	} else if ( key.compare("weight") == 0 ) {
+		job.weight = boost::lexical_cast<int>(value);
+	} else if ( key.compare("domain_name") == 0 ) {
+		job.domain = value;
+	} else if ( key.compare("cmd_line") == 0 ) {
+		job.cmd_line = value;
+	} else if ( key.compare("node_name") == 0 ) {
+		job.node_name = value;
+	} else if ( key.compare("nxt") == 0 ) {
+		boost::split(job.nxt, value, boost::is_any_of(",;"));
+	} else if ( key.compare("prv") == 0 ) {
+		boost::split(job.prv, value, boost::is_any_of(",;"));
+	} if ( key.compare("recovery_type") == 0 ) {
+		job.recovery_type = boost::lexical_cast<int>(value);
+	} if ( key.compare("time_constraints") == 0 ) {
+		std::vector<std::string>	list_of_tc;
+		boost::split(list_of_tc, value, boost::is_any_of(",;"));
+
+		BOOST_FOREACH(std::string tc, list_of_tc) {
+			std::vector<std::string>	splitted_tc;
+			rpc::t_time_constraint		time_constraint;
+
+			boost::split(splitted_tc, tc, ":");
+			time_constraint.job_name = job.name;
+			time_constraint.type = build_time_constraint_type_from_string(splitted_tc.at(0));
+			time_constraint.value = build_unix_time_from_hhmm_time(splitted_tc.at(1));
+
+			job.time_constraints.push_back(time_constraint);
+		}
+	}
+}
+
 bool	split_line(const char& separator, const std::string& data, std::string& key, std::string& value) {
 	boost::regex	spaces("[[:space:]]+", boost::regex::perl);
 	boost::regex	comment_endl("#.*?$", boost::regex::perl);
@@ -50,7 +85,6 @@ bool	split_line(const char& separator, const std::string& data, std::string& key
 
 	line = boost::regex_replace(line, spaces, "");
 	line = boost::regex_replace(line, comment_endl, "");
-
 
 	position = line.find_first_of(separator);
 

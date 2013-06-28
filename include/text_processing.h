@@ -27,9 +27,48 @@
 
 #include <string>
 #include <boost/regex.hpp>
+#include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include "convertions.h"
 #include "model_types.h"
 
-void	update_node(const std::string& key, const std::string& value, rpc::t_node node);
+/**
+ * update_node
+ *
+ * Update the node's attribute according to the given key + value couple
+ *
+ * @param	key	the key to update
+ * @param	value	the value to record
+ * @param	node	the node to update
+ */
+void	update_node(const std::string& key, const std::string& value, rpc::t_node& node);
+
+/**
+ * update_job
+ *
+ * Update the job's attribute according to the given key + value couple
+ *
+ * time_constraint pattern: time_constraint=(AFTER|AT|BEFORE):hhmm((,|;)(AFTER|AT|BEFORE):hhmm)*
+ * hh: hours (2 digits)
+ * mm: minutes (2 digits)
+ *
+ * @param	key	the key to update
+ * @param	value	the value to record
+ * @param	job	the job to update
+ */
+void	update_job(const std::string& key, const std::string& value, rpc::t_job& job);
+
+/**
+ * split_line
+ *
+ * Split a 'key=value' line
+ *
+ * @param	separator	the token to use to split
+ * @param	data	the line to split
+ * @param	key	the returned key
+ * @param	value	the returned value
+ *
+ * @return	true on success
+ */
 bool	split_line(const char& separator, const std::string& data, std::string& key, std::string& value);
