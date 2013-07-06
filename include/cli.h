@@ -64,6 +64,10 @@ rpc::t_node	target_node;
 #define UNUSED(d) d
 #endif
 
+// ////////////////////////////////////////////////////////////////////////////
+//	nodes
+// ////////////////////////////////////////////////////////////////////////////
+
 /**
  * cmd_get_nodes
  *
@@ -95,6 +99,10 @@ int	cmd_add_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), char 
  */
 int	cmd_remove_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc);
 
+// ////////////////////////////////////////////////////////////////////////////
+//	jobs
+// ////////////////////////////////////////////////////////////////////////////
+
 /**
  * cmd_add_job
  *
@@ -118,6 +126,17 @@ int	cmd_add_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *
 int	cmd_remove_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc);
 
 /**
+ * cmd_update_job
+ *
+ * Implements the update_job RPC call
+ *
+ * @arg	argv	the arguments
+ * @arg argc	the number of arguments
+ * @return	CLI_OK or CLI_ERROR
+ */
+int	cmd_update_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc);
+
+/**
  * cmd_get_ready_jobs
  *
  * Implements the get_ready_jobs RPC call
@@ -136,6 +155,21 @@ int	cmd_get_ready_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command),
 int	cmd_get_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc));
 
 /**
+ * cmd_update_job_state
+ *
+ * Implements the update_job_state RPC call
+ *
+ * @arg	argv	the arguments
+ * @arg argc	the number of arguments
+ * @return	CLI_OK or CLI_ERROR
+ */
+int	cmd_update_job_state(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc);
+
+// ////////////////////////////////////////////////////////////////////////////
+//	monitoring
+// ////////////////////////////////////////////////////////////////////////////
+
+/**
  * monitor_failed_jobs
  *
  * Implements the monitor_failed_jobs RPC call
@@ -152,6 +186,10 @@ int	cmd_monitor_failed_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *comm
  * @return	CLI_OK or CLI_ERROR
  */
 int	cmd_monitor_waiting_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc));
+
+// ////////////////////////////////////////////////////////////////////////////
+//	misc
+// ////////////////////////////////////////////////////////////////////////////
 
 /**
  * cmd_connect

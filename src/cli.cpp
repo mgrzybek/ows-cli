@@ -98,6 +98,10 @@ bool	cli_add_commands(struct cli_def* cli) {
 	cli_register_command(cli, c, "jobs", cmd_get_jobs, PRIVILEGE_UNPRIVILEGED, MODE_CONNECTED, "Show the available jobs");
 	cli_register_command(cli, c, "ready jobs", cmd_get_ready_jobs, PRIVILEGE_UNPRIVILEGED, MODE_CONNECTED, "Show the ready jobs");
 
+	// update
+	c = cli_register_command(cli, NULL, "update", NULL, PRIVILEGE_PRIVILEGED, MODE_CONNECTED, NULL);
+	cli_register_command(cli, c, "job", cmd_update_job, PRIVILEGE_PRIVILEGED, MODE_CONNECTED, "Update a job");
+
 	// monitor
 	c = cli_register_command(cli, NULL, "monitor", NULL, PRIVILEGE_UNPRIVILEGED, MODE_CONNECTED, NULL);
 	cli_register_command(cli, c, "failed", cmd_monitor_failed_jobs, PRIVILEGE_UNPRIVILEGED, MODE_CONNECTED, "Show the number of failed jobs");
@@ -226,7 +230,7 @@ int	cmd_add_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *
 	}
 
 	// TODO: change add_job -> add target_node argument
-	RPC_EXEC(client.get_handler()->add_job(local_node.domain_name, local_node, target_node, job_to_add))
+	RPC_EXEC(client.get_handler()->add_job(local_node.domain_name, local_node, job_to_add))
 
 	return CLI_OK;
 }
@@ -248,6 +252,68 @@ int	cmd_remove_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), cha
 	RPC_EXEC(client.get_handler()->remove_job(local_node.domain_name, local_node, job_to_remove))
 
 	return CLI_OK;
+}
+
+int	cmd_update_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc) {
+	rpc::t_job	job_to_update;
+	std::string	line;
+	std::string	key;
+	std::string	value;
+	boost::regex	comment("^#.*?$", boost::regex::perl);
+
+	std::cout << "argc == " << argc << std::endl;
+
+	if ( argc != 0 ) {
+		// Parse the arguments
+		for ( int i = 0 ; i < argc ; i++ ) {
+			line = argv[i];
+
+			if ( boost::regex_match(line, comment) == true || line.length() == 0 )
+				continue;
+
+			if ( split_line('=',line, key, value) == false ) {
+				return CLI_ERROR_ARG;
+			}
+
+			update_job(key, value, job_to_update);
+		}
+	} else {
+		// Parse std::cin
+		while ( std::cin >> line) {
+			if ( boost::regex_match(line, comment) == true || line.length() == 0 )
+				continue;
+
+			if ( split_line('=', line, key, value) == false )
+				return CLI_ERROR_ARG;
+
+			update_job(key, value, job_to_update);
+		}
+
+		std::cerr << "Reading the input is not implemented yet!" << std::endl;
+		return CLI_ERROR_ARG;
+	}
+
+	// TODO: change add_job -> add target_node argument
+	RPC_EXEC(client.get_handler()->update_job(local_node.domain_name, local_node, job_to_update))
+
+	return CLI_OK;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+int	cmd_update_job_state(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc) {
+	rpc::t_job	job;
+
+	if ( argc != 2 ) {
+		std::cerr << "Needs two arguments" << std::endl;
+		return CLI_ERROR_ARG;
+	}
+
+	job.name = argv[0];
+	job.state = build_job_state_from_string(argv[1]);
+
+	RPC_EXEC(client.get_handler()->update_job_state(local_node.domain_name, local_node, job))
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
