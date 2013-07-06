@@ -305,7 +305,7 @@ int	cmd_update_job_state(UNUSED(struct cli_def *cli), UNUSED(const char *command
 	rpc::t_job	job;
 
 	if ( argc != 2 ) {
-		std::cerr << "Needs two arguments" << std::endl;
+		std::cerr << "Needs two arguments: job_name and job_state" << std::endl;
 		return CLI_ERROR_ARG;
 	}
 
@@ -314,6 +314,7 @@ int	cmd_update_job_state(UNUSED(struct cli_def *cli), UNUSED(const char *command
 
 	RPC_EXEC(client.get_handler()->update_job_state(local_node.domain_name, local_node, job))
 
+	return CLI_OK;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
