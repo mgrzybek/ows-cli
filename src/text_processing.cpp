@@ -93,6 +93,9 @@ bool	split_line(const char& separator, const std::string& data, std::string& key
 	line = boost::regex_replace(line, spaces, "");
 	line = boost::regex_replace(line, comment_endl, "");
 
+	if ( line.length() == 0 )
+		return true;
+
 	position = line.find_first_of(separator);
 
 	if ( position == std::string::npos ) {

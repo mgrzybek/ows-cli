@@ -85,6 +85,7 @@ bool	cli_add_commands(struct cli_def* cli) {
 
 	// add
 	c = cli_register_command(cli, NULL, "add", NULL, PRIVILEGE_PRIVILEGED, MODE_CONNECTED, NULL);
+	cli_register_command(cli, c, "job", cmd_add_job, PRIVILEGE_PRIVILEGED, MODE_CONNECTED, "Add a job");
 	cli_register_command(cli, c, "node", cmd_add_node, PRIVILEGE_PRIVILEGED, MODE_CONNECTED, "Add a node");
 
 	// remove
@@ -97,6 +98,8 @@ bool	cli_add_commands(struct cli_def* cli) {
 	cli_register_command(cli, c, "nodes", cmd_get_nodes, PRIVILEGE_UNPRIVILEGED, MODE_CONNECTED, "Show the available nodes");
 	cli_register_command(cli, c, "jobs", cmd_get_jobs, PRIVILEGE_UNPRIVILEGED, MODE_CONNECTED, "Show the available jobs");
 	cli_register_command(cli, c, "ready jobs", cmd_get_ready_jobs, PRIVILEGE_UNPRIVILEGED, MODE_CONNECTED, "Show the ready jobs");
+	cli_register_command(cli, c, "current planning", cmd_get_current_planning_name, PRIVILEGE_UNPRIVILEGED, MODE_CONNECTED, "Show the current planning name");
+	cli_register_command(cli, c, "available plannings", cmd_get_available_planning_names, PRIVILEGE_UNPRIVILEGED, MODE_CONNECTED, "Show the available planning names");
 
 	// update
 	c = cli_register_command(cli, NULL, "update", NULL, PRIVILEGE_PRIVILEGED, MODE_CONNECTED, NULL);
@@ -132,8 +135,6 @@ int	cmd_add_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), char 
 	std::string	value;
 	boost::regex	comment("^#.*?$", boost::regex::perl);
 
-	std::cout << "argc == " << argc << std::endl;
-
 	if ( argc != 0 ) {
 		// Parse the arguments
 		for ( int i = 0 ; i < argc ; i++ ) {
@@ -159,9 +160,6 @@ int	cmd_add_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), char 
 
 			update_node(key, value, node_to_add);
 		}
-
-		std::cerr << "Reading the input is not implemented yet!" << std::endl;
-		return CLI_ERROR_ARG;
 	}
 
 	RPC_EXEC(client.get_handler()->add_node(local_node.domain_name, local_node, target_node, node_to_add))
@@ -170,6 +168,7 @@ int	cmd_add_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), char 
 }
 
 int	cmd_remove_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc) {
+	bool		result;
 	rpc::t_node	node_to_remove;
 //	boost::regex	spaces("[[:space:]]+", boost::regex::perl);
 //	boost::regex	comment("^#.*?$", boost::regex::perl);
@@ -183,7 +182,13 @@ int	cmd_remove_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), ch
 	node_to_remove.name = argv[0];
 	node_to_remove.domain_name = local_node.domain_name;
 
-	RPC_EXEC(client.get_handler()->remove_node(local_node.domain_name, local_node, target_node, node_to_remove))
+	RPC_EXEC_INTEGER_RETURN(client.get_handler()->remove_node(local_node.domain_name, local_node, target_node, node_to_remove))
+
+	if ( result == true ) {
+		std::cout << "success" << std::endl;
+	} else {
+		std::cout << "failure" << std::endl;
+	}
 
 	return CLI_OK;
 }
@@ -351,6 +356,32 @@ int	cmd_monitor_failed_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *comm
 	RPC_EXEC_INTEGER_RETURN(client.get_handler()->monitor_failed_jobs(local_node.domain_name, local_node, target_node))
 
 	std::cout << result << std::endl;
+
+	return CLI_OK;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+int	cmd_get_current_planning_name(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc)) {
+	std::string	result;
+
+	RPC_EXEC(client.get_handler()->get_current_planning_name(result, local_node.domain_name, local_node, target_node))
+
+	std::cout << result << std::endl;
+
+	return CLI_OK;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+int	cmd_get_available_planning_names(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc)) {
+	std::vector<std::string> result;
+
+	RPC_EXEC(client.get_handler()->get_available_planning_names(result, local_node.domain_name, local_node, target_node))
+
+	BOOST_FOREACH(std::string name, result) {
+		std::cout << name << std::endl;
+	}
 
 	return CLI_OK;
 }

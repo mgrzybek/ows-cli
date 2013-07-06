@@ -166,6 +166,32 @@ int	cmd_get_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSE
 int	cmd_update_job_state(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc);
 
 // ////////////////////////////////////////////////////////////////////////////
+//	planning
+// ////////////////////////////////////////////////////////////////////////////
+
+/**
+ * cmd_get_current_planning_name
+ *
+ * Implements the get_current_planning_name RPC call
+ *
+ * @arg	argv	the arguments
+ * @arg argc	the number of arguments
+ * @return	CLI_OK or CLI_ERROR
+ */
+int	cmd_get_current_planning_name(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc));
+
+/**
+ * cmd_get_available_planning_names
+ *
+ * Implements the get_get_available_planning_names RPC call
+ *
+ * @arg	argv	the arguments
+ * @arg argc	the number of arguments
+ * @return	CLI_OK or CLI_ERROR
+ */
+int	cmd_get_available_planning_names(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc));
+
+// ////////////////////////////////////////////////////////////////////////////
 //	monitoring
 // ////////////////////////////////////////////////////////////////////////////
 

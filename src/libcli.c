@@ -873,7 +873,7 @@ AGAIN:
 					if (c->callback)
 						goto CORRECT_CHECKS;
 
-					printf( "Incomplete command");
+					printf("Incomplete command\n");
 					return CLI_ERROR;
 				}
 				rc = cli_find_command(cli, c->children, num_words, words, start_word + 1, filters);
