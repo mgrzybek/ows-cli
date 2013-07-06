@@ -29,6 +29,8 @@
 #include <boost/regex.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/split.hpp>
 
 #include "convertions.h"
 #include "model_types.h"

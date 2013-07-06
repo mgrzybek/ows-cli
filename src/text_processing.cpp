@@ -57,7 +57,14 @@ void	update_job(const std::string& key, const std::string& value, rpc::t_job& jo
 	} else if ( key.compare("prv") == 0 ) {
 		boost::split(job.prv, value, boost::is_any_of(",;"));
 	} if ( key.compare("recovery_type") == 0 ) {
-		job.recovery_type = boost::lexical_cast<int>(value);
+		std::vector<std::string>	splitted_rt;
+
+		boost::split(splitted_rt, value, boost::is_any_of(":"));
+
+		job.recovery_type.short_label = splitted_rt.at(0);
+		job.recovery_type.label = splitted_rt.at(1);
+		job.recovery_type.action = build_rectype_action_from_string(splitted_rt.at(2).c_str());
+
 	} if ( key.compare("time_constraints") == 0 ) {
 		std::vector<std::string>	list_of_tc;
 		boost::split(list_of_tc, value, boost::is_any_of(",;"));
@@ -66,9 +73,9 @@ void	update_job(const std::string& key, const std::string& value, rpc::t_job& jo
 			std::vector<std::string>	splitted_tc;
 			rpc::t_time_constraint		time_constraint;
 
-			boost::split(splitted_tc, tc, ":");
+			boost::algorithm::split(splitted_tc, tc, boost::is_any_of(":"));
 			time_constraint.job_name = job.name;
-			time_constraint.type = build_time_constraint_type_from_string(splitted_tc.at(0));
+			time_constraint.type = build_time_constraint_type_from_string(splitted_tc.at(0).c_str());
 			time_constraint.value = build_unix_time_from_hhmm_time(splitted_tc.at(1));
 
 			job.time_constraints.push_back(time_constraint);
