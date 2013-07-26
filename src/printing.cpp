@@ -27,6 +27,8 @@
 
 #include "printing.h"
 
+// TODO: http://stackoverflow.com/questions/8806643/colorized-output-breaks-linewrapping-with-readline
+
 void	print_node(const rpc::t_node& node) {
 	std::cout << "domain:	" << node.domain_name << std::endl;
 	std::cout << "name:	" << node.name << std::endl;
@@ -48,6 +50,6 @@ void	print_jobs(const rpc::v_jobs& jobs) {
 }
 
 void	print_job(const rpc::t_job& job) {
-	std::cout << "	name:	" << job.name;
+    std::cout << "	name:	" << job.name << std::endl;
 	std::cout << "	state:	" << build_string_from_job_state(job.state) << std::endl;
 }

@@ -55,8 +55,7 @@ bool	cli_add_commands(struct cli_def* cli);
  * to be seen by the "cmd_*" functions.
  */
 Rpc_Client	client;
-rpc::t_node	local_node;
-rpc::t_node	target_node;
+rpc::t_routing_data    routing;
 
 #ifdef __GNUC__
 #define UNUSED(d) d __attribute__ ((unused))

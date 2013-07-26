@@ -51,18 +51,18 @@ try { \
 void	usage(void) {
 	std::cout << "monitoring -H <hostname> -p <port> -w <warning> -c <critical> -m <metric> -d <domain>" << std::endl;
 	std::cout << "	<hostname>	: the node to check" << std::endl;
-	std::cout << "	<port>	: the port to use" << std::endl;
+    std::cout << "	<port>		: the port to use" << std::endl;
 	std::cout << "	<warning>	: the warning threshold" << std::endl;
 	std::cout << "	<critical>	: the critical threshold" << std::endl;
 	std::cout << "	<metric>	: the value to check (failed_jobs, waiting_jobs...)" << std::endl;
 	std::cout << "	<domain>	: the domain's name to check" << std::endl;
 }
 
-bool	get_metric(rpc::integer& result, const std::string& metric, Rpc_Client& client, const rpc::t_node& local_node, const rpc::t_node& target_node) {
+bool	get_metric(rpc::integer& result, const std::string& metric, Rpc_Client& client, const rpc::t_routing_data& routing) {
 	if ( metric.compare("failed_jobs") == 0 ) {
-		RPC_EXEC_INTEGER_RETURN(client.get_handler()->monitor_failed_jobs(local_node.domain_name, local_node, target_node))
+        RPC_EXEC_INTEGER_RETURN(client.get_handler()->monitor_failed_jobs(routing))
 	} else if ( metric.compare("waiting_jobs") == 0 ) {
-		RPC_EXEC_INTEGER_RETURN(client.get_handler()->monitor_waiting_jobs(local_node.domain_name, local_node, target_node))
+        RPC_EXEC_INTEGER_RETURN(client.get_handler()->monitor_waiting_jobs(routing))
 	} else {
 		return false;
 	}
@@ -77,8 +77,7 @@ int	main(const int argc, char const* argv[]) {
 	 * Connection
 	 */
 	Rpc_Client	client;
-	rpc::t_node	local_node;
-	rpc::t_node	target_node;
+    rpc::t_routing_data routing;
 	int	port = -1;
 
 	/*
@@ -87,9 +86,9 @@ int	main(const int argc, char const* argv[]) {
 	rpc::integer	warning_threshold = -1;
 	rpc::integer	critical_threshold = -1;
 	rpc::integer	result = -1;
-	std::string	metric = "";
-	std::string	perfdata = "";
-	std::string	message = "";
+    std::string		metric = "";
+    std::string		perfdata = "";
+    std::string		message = "";
 
 	std::vector<std::string>	metrics;
 	metrics.push_back("failed_jobs");
@@ -113,7 +112,7 @@ int	main(const int argc, char const* argv[]) {
 	 */
 	for (int i = 1 ; i < argc ; i += 2) {
 		if (strcmp(argv[i], "-H") == 0) {
-			target_node.name = argv[i+1];
+            routing.target_node.name = argv[i+1];
 		}
 		if (strcmp(argv[i], "-p") == 0) {
 			port = boost::lexical_cast<int>(argv[i+1]);
@@ -128,15 +127,15 @@ int	main(const int argc, char const* argv[]) {
 			metric = argv[i+1];
 		}
 		if (strcmp(argv[i], "-d") == 0) {
-			target_node.domain_name = argv[i+1];
-			local_node.domain_name = argv[i+1];
+            routing.target_node.domain_name = argv[i+1];
+            routing.calling_node.domain_name = argv[i+1];
 		}
 	}
 
 	/*
 	 * Checking for missing args
 	 */
-	if ( target_node.name.size() == 0 || port == -1 || warning_threshold == -1 || critical_threshold == -1 || metric.size() == 0 || target_node.domain_name.size() == 0 ) {
+    if ( routing.target_node.name.size() == 0 || port == -1 || warning_threshold == -1 || critical_threshold == -1 || metric.size() == 0 || routing.target_node.domain_name.size() == 0 ) {
 		std::cout << "Missing args!" << std::endl;
 		usage();
 		return MON_UNKNOWN;
@@ -145,13 +144,13 @@ int	main(const int argc, char const* argv[]) {
 	/*
 	 * RPC call
 	 */
-	local_node.name = "monitoring";
+    routing.calling_node.name = "monitoring";
 
-	client.open(target_node.name.c_str(), port);
+    client.open(routing.target_node.name.c_str(), port);
 
 	if ( metric.compare("all") == 0 ) {
 		BOOST_FOREACH(std::string command, metrics) {
-			if ( get_metric(result, command, client, local_node, target_node) == false ) {
+            if ( get_metric(result, command, client, routing) == false ) {
 				client.close();
 				return MON_UNKNOWN;
 			}
@@ -162,14 +161,14 @@ int	main(const int argc, char const* argv[]) {
 			perfdata += ";";
 		}
 	} else {
-		if ( get_metric(result, metric, client, local_node, target_node) == false ) {
+        if ( get_metric(result, metric, client, routing) == false ) {
 			client.close();
 			return MON_UNKNOWN;
 		}
 
 		perfdata += metric;
 		perfdata += "=";
-		perfdata += boost::lexical_cast<rpc::integer>(result);
+        perfdata += boost::lexical_cast<std::string>(result);
 		perfdata += ";";
 	}
 
@@ -179,14 +178,16 @@ int	main(const int argc, char const* argv[]) {
 	 * Printing the result
 	 * TODO: not sure of the output format, need to check
 	 */
+    std::cout << metric;
+
 	if ( result < warning_threshold ) {
-		std::cout << "OK: " << metric << " is fine";
+        std::cout << " is fine";
 		return_code = MON_OK;
 	} else if ( result >= warning_threshold && result < critical_threshold ) {
-		std::cout << "WARNING: " << metric << " is high";
+        std::cout << " is high";
 		return_code = MON_WARNING;
 	} else {
-		std::cout << "CRITICAL: " << metric << " is too high";
+        std::cout << " is too high";
 		return_code = MON_CRITICAL;
 	}
 

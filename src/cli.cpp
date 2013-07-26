@@ -42,6 +42,9 @@ try { \
 } catch (const rpc::ex_node& e) { \
 	std::cerr << "ex::node: " << e.msg << std::endl; \
 	return CLI_ERROR; \
+} catch (const rpc::ex_job& e) { \
+	std::cerr << "ex::job: " << e.msg << std::endl; \
+	return CLI_ERROR; \
 } catch (const rpc::ex_processing& e) { \
 	std::cerr << "ex_processing: " << e.msg << std::endl; \
 	return CLI_ERROR; \
@@ -52,7 +55,7 @@ try { \
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define RPC_EXEC_INTEGER_RETURN(command) \
+#define RPC_EXEC_RESULT_RETURN(command) \
 try { \
 	if ( client.get_handler() == NULL ) { \
 		printf("Not connected!\n"); \
@@ -64,6 +67,9 @@ try { \
 	return CLI_ERROR; \
 } catch (const rpc::ex_node& e) { \
 	std::cerr << "ex::node: " << e.msg << std::endl; \
+	return CLI_ERROR; \
+} catch (const rpc::ex_job& e) { \
+	std::cerr << "ex::job: " << e.msg << std::endl; \
 	return CLI_ERROR; \
 } catch (const rpc::ex_processing& e) { \
 	std::cerr << "ex_processing: " << e.msg << std::endl; \
@@ -119,7 +125,7 @@ bool	cli_add_commands(struct cli_def* cli) {
 int	cmd_get_nodes(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc)) {
 	rpc::v_nodes	nodes;
 
-	RPC_EXEC(client.get_handler()->get_nodes(nodes, local_node.domain_name, local_node, target_node))
+	RPC_EXEC(client.get_handler()->get_nodes(nodes, routing))
 
 	std::for_each(nodes.begin(), nodes.end(), print_node);
 
@@ -133,6 +139,7 @@ int	cmd_add_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), char 
 	std::string	line;
 	std::string	key;
 	std::string	value;
+	bool		result;
 	boost::regex	comment("^#.*?$", boost::regex::perl);
 
 	if ( argc != 0 ) {
@@ -162,7 +169,13 @@ int	cmd_add_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), char 
 		}
 	}
 
-	RPC_EXEC(client.get_handler()->add_node(local_node.domain_name, local_node, target_node, node_to_add))
+	RPC_EXEC_RESULT_RETURN(client.get_handler()->add_node(routing, node_to_add))
+
+	if ( result == true ) {
+		std::cout << "success" << std::endl;
+	} else {
+		std::cout << "failure" << std::endl;
+	}
 
 	return CLI_OK;
 }
@@ -170,6 +183,7 @@ int	cmd_add_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), char 
 int	cmd_remove_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc) {
 	bool		result;
 	rpc::t_node	node_to_remove;
+	std::string key;
 //	boost::regex	spaces("[[:space:]]+", boost::regex::perl);
 //	boost::regex	comment("^#.*?$", boost::regex::perl);
 //	boost::regex	comment_endl("#.*?$", boost::regex::perl);
@@ -179,10 +193,12 @@ int	cmd_remove_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), ch
 		return CLI_ERROR_ARG;
 	}
 
-	node_to_remove.name = argv[0];
-	node_to_remove.domain_name = local_node.domain_name;
+	if ( split_line('=', argv[0], key, node_to_remove.name) == false )
+		return CLI_ERROR_ARG;
 
-	RPC_EXEC_INTEGER_RETURN(client.get_handler()->remove_node(local_node.domain_name, local_node, target_node, node_to_remove))
+	node_to_remove.domain_name = routing.calling_node.domain_name;
+
+	RPC_EXEC_RESULT_RETURN(client.get_handler()->remove_node(routing, node_to_remove))
 
 	if ( result == true ) {
 		std::cout << "success" << std::endl;
@@ -200,9 +216,8 @@ int	cmd_add_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *
 	std::string	line;
 	std::string	key;
 	std::string	value;
+	bool		result;
 	boost::regex	comment("^#.*?$", boost::regex::perl);
-
-	std::cout << "argc == " << argc << std::endl;
 
 	if ( argc != 0 ) {
 		// Parse the arguments
@@ -235,26 +250,44 @@ int	cmd_add_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *
 	}
 
 	// TODO: change add_job -> add target_node argument
-	RPC_EXEC(client.get_handler()->add_job(local_node.domain_name, local_node, job_to_add))
+	RPC_EXEC_RESULT_RETURN(client.get_handler()->add_job(routing, job_to_add))
+
+	if ( result == true ) {
+		std::cout << "success" << std::endl;
+	} else {
+		std::cout << "failure" << std::endl;
+	}
 
 	return CLI_OK;
 }
 
 int	cmd_remove_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc) {
 	rpc::t_job	job_to_remove;
+	std::string key;
 //	boost::regex	spaces("[[:space:]]+", boost::regex::perl);
 //	boost::regex	comment("^#.*?$", boost::regex::perl);
 //	boost::regex	comment_endl("#.*?$", boost::regex::perl);
+	bool	result;
 
 	if ( argc != 1 ) {
 		std::cerr << "Missing one argument" << std::endl;
 		return CLI_ERROR_ARG;
 	}
 
-	job_to_remove.name = argv[0];
-	job_to_remove.node_name = target_node.name;
+	if ( split_line('=', argv[0], key, job_to_remove.name) == false )
+		return CLI_ERROR_ARG;
 
-	RPC_EXEC(client.get_handler()->remove_job(local_node.domain_name, local_node, job_to_remove))
+	job_to_remove.node_name = routing.target_node.name;
+	job_to_remove.domain = routing.target_node.domain_name;
+
+	RPC_EXEC_RESULT_RETURN(client.get_handler()->remove_job(routing, job_to_remove))
+
+	if ( result == true)
+		std::cout << "success";
+	else
+		std::cout << "failure";
+
+	std::cout << std::endl;
 
 	return CLI_OK;
 }
@@ -299,7 +332,7 @@ int	cmd_update_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), cha
 	}
 
 	// TODO: change add_job -> add target_node argument
-	RPC_EXEC(client.get_handler()->update_job(local_node.domain_name, local_node, job_to_update))
+	RPC_EXEC(client.get_handler()->update_job(routing, job_to_update))
 
 	return CLI_OK;
 }
@@ -317,7 +350,7 @@ int	cmd_update_job_state(UNUSED(struct cli_def *cli), UNUSED(const char *command
 	job.name = argv[0];
 	job.state = build_job_state_from_string(argv[1]);
 
-	RPC_EXEC(client.get_handler()->update_job_state(local_node.domain_name, local_node, job))
+	RPC_EXEC(client.get_handler()->update_job_state(routing, job))
 
 	return CLI_OK;
 }
@@ -327,7 +360,7 @@ int	cmd_update_job_state(UNUSED(struct cli_def *cli), UNUSED(const char *command
 int	cmd_get_ready_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc)) {
 	rpc::v_jobs	ready_jobs;
 
-	RPC_EXEC(client.get_handler()->get_ready_jobs(ready_jobs, local_node.domain_name, local_node, target_node))
+	RPC_EXEC(client.get_handler()->get_ready_jobs(ready_jobs, routing))
 
 	print_jobs(ready_jobs);
 
@@ -339,7 +372,7 @@ int	cmd_get_ready_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command),
 int	cmd_get_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc)) {
 	rpc::v_jobs	jobs;
 
-	RPC_EXEC(client.get_handler()->get_jobs(jobs, local_node.domain_name, local_node, target_node))
+	RPC_EXEC(client.get_handler()->get_jobs(jobs, routing))
 
 	BOOST_FOREACH(rpc::t_job job, jobs) {
 		print_job(job);
@@ -353,7 +386,7 @@ int	cmd_get_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSE
 int	cmd_monitor_failed_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc)) {
 	rpc::integer	result = 0;
 
-	RPC_EXEC_INTEGER_RETURN(client.get_handler()->monitor_failed_jobs(local_node.domain_name, local_node, target_node))
+	RPC_EXEC_RESULT_RETURN(client.get_handler()->monitor_failed_jobs(routing))
 
 	std::cout << result << std::endl;
 
@@ -365,7 +398,7 @@ int	cmd_monitor_failed_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *comm
 int	cmd_get_current_planning_name(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc)) {
 	std::string	result;
 
-	RPC_EXEC(client.get_handler()->get_current_planning_name(result, local_node.domain_name, local_node, target_node))
+	RPC_EXEC(client.get_handler()->get_current_planning_name(result, routing))
 
 	std::cout << result << std::endl;
 
@@ -377,7 +410,7 @@ int	cmd_get_current_planning_name(UNUSED(struct cli_def *cli), UNUSED(const char
 int	cmd_get_available_planning_names(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc)) {
 	std::vector<std::string> result;
 
-	RPC_EXEC(client.get_handler()->get_available_planning_names(result, local_node.domain_name, local_node, target_node))
+	RPC_EXEC(client.get_handler()->get_available_planning_names(result, routing))
 
 	BOOST_FOREACH(std::string name, result) {
 		std::cout << name << std::endl;
@@ -391,7 +424,7 @@ int	cmd_get_available_planning_names(UNUSED(struct cli_def *cli), UNUSED(const c
 int	cmd_monitor_waiting_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc)) {
 	rpc::integer	result = 0;
 
-	RPC_EXEC_INTEGER_RETURN(client.get_handler()->monitor_waiting_jobs(local_node.domain_name, local_node, target_node))
+	RPC_EXEC_RESULT_RETURN(client.get_handler()->monitor_waiting_jobs(routing))
 
 	std::cout << result << std::endl;
 
@@ -409,9 +442,9 @@ int	cmd_connect(struct cli_def *cli, UNUSED(const char *command), char *argv[], 
 		return CLI_ERROR_ARG;
 	}
 
-	target_node.domain_name = argv[0];
-	local_node.domain_name = argv[0];
-	local_node.name = "ows-cli";
+	routing.target_node.domain_name = argv[0];
+	routing.calling_node.domain_name = argv[0];
+	routing.calling_node.name = "ows-cli";
 
 	if ( argc == 3 )
 		port = boost::lexical_cast<int>(argv[2]);
@@ -421,18 +454,18 @@ int	cmd_connect(struct cli_def *cli, UNUSED(const char *command), char *argv[], 
 		return CLI_ERROR;
 
 	// Updating the node
-	target_node.name = argv[1];
+	routing.target_node.name = argv[1];
 
-	RPC_EXEC(client.get_handler()->hello(hello_result, target_node))
+	RPC_EXEC(client.get_handler()->hello(hello_result, routing.target_node))
 
-	target_node.domain_name = hello_result.domain;
-	target_node.name = hello_result.name;
+	routing.target_node.domain_name = hello_result.domain;
+	routing.target_node.name = hello_result.name;
 
 	cli->mode = MODE_CONNECTED;
 
 	free(cli->promptchar);
-	cli->promptchar = (char*) calloc(sizeof(char), strlen(target_node.name.c_str()));
-	if ( sprintf(cli->promptchar, "%s> ", target_node.name.c_str()) == 0 ) {
+	cli->promptchar = (char*) calloc(sizeof(char), strlen(routing.target_node.name.c_str()));
+	if ( sprintf(cli->promptchar, "%s> ", routing.target_node.name.c_str()) == 0 ) {
 		printf("Cannot update the prompt!\n");
 		return CLI_ERROR;
 	}
@@ -446,7 +479,7 @@ int	cmd_close(struct cli_def *cli, UNUSED(const char *command), UNUSED(char *arg
 	if ( client.close() == false )
 		return CLI_ERROR;
 
-	clear_node(target_node);
+	clear_node(routing.target_node);
 
 	cli->mode = MODE_EXEC;
 	cli_set_configmode(cli, MODE_DISCONNECTED, 0);
@@ -462,7 +495,7 @@ int	cmd_close(struct cli_def *cli, UNUSED(const char *command), UNUSED(char *arg
 int	cmd_hello(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc)) {
 	rpc::t_hello	hello_result;
 
-	RPC_EXEC(client.get_handler()->hello(hello_result, target_node))
+	RPC_EXEC(client.get_handler()->hello(hello_result, routing.target_node))
 
 	std::cout << "domain: " << hello_result.domain << std::endl
 	<< "master: " << hello_result.is_master << std::endl

@@ -52,12 +52,11 @@ void	usage(void);
  * @param result	: the result to get
  * @param metric	: the name of the metric
  * @param client	: the connection object
- * @param local_node	: the caller's identity
- * @param target_node	: the target
+ * @param routing   : the routing data
  *
  * @return	true on success
  */
-bool	get_metric(rpc::integer& result, const std::string& metric, Rpc_Client& client, const rpc::t_node& local_node, const rpc::t_node& target_node);
+bool	get_metric(rpc::integer& result, const std::string& metric, Rpc_Client& client, const rpc::t_routing_data& routing);
 
 /**
  * main

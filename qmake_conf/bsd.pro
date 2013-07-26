@@ -26,18 +26,17 @@
 
 !macx:unix {
 	LIBS += -lthrift \
+		-lreadline \
 		-L/usr/local/lib \
 		-L/usr/lib \
 		-L/usr/local/lib \
 		/usr/local/lib/libboost_regex.a \
 		/usr/local/lib/libboost_filesystem.a \
-		/usr/local/lib/libboost_system-mt.a \
+		/usr/local/lib/libboost_system.a \
 		-lssl \
 		-lpthread \
-		-lcrypto \
 		-lm \
-		-ldl \
-		-lz \
+		-lz 
 
 	INCLUDEPATH +=  /usr/local/include \
 		/usr/local/include/thrift \
