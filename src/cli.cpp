@@ -111,6 +111,9 @@ bool	cli_add_commands(struct cli_def* cli) {
 	c = cli_register_command(cli, NULL, "update", NULL, PRIVILEGE_PRIVILEGED, MODE_CONNECTED, NULL);
 	cli_register_command(cli, c, "job", cmd_update_job, PRIVILEGE_PRIVILEGED, MODE_CONNECTED, "Update a job");
 
+	// use
+	cli_register_command(cli, NULL, "use", cmd_use, PRIVILEGE_UNPRIVILEGED, MODE_CONNECTED, "Use a planning");
+
 	// monitor
 	c = cli_register_command(cli, NULL, "monitor", NULL, PRIVILEGE_UNPRIVILEGED, MODE_CONNECTED, NULL);
 	cli_register_command(cli, c, "failed", cmd_monitor_failed_jobs, PRIVILEGE_UNPRIVILEGED, MODE_CONNECTED, "Show the number of failed jobs");
@@ -188,7 +191,8 @@ int	cmd_remove_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), ch
 //	boost::regex	comment("^#.*?$", boost::regex::perl);
 //	boost::regex	comment_endl("#.*?$", boost::regex::perl);
 
-	if ( argc != 1 ) {
+	// TODO: check the number of arguments required by the CLI and the node
+	if ( argc != 2 ) {
 		std::cerr << "Missing one argument" << std::endl;
 		return CLI_ERROR_ARG;
 	}
@@ -263,19 +267,40 @@ int	cmd_add_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *
 
 int	cmd_remove_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc) {
 	rpc::t_job	job_to_remove;
-	std::string key;
+	std::string	key;
+	std::string	value;
+	std::string	line;
 //	boost::regex	spaces("[[:space:]]+", boost::regex::perl);
-//	boost::regex	comment("^#.*?$", boost::regex::perl);
+	boost::regex	comment("^#.*?$", boost::regex::perl);
 //	boost::regex	comment_endl("#.*?$", boost::regex::perl);
 	bool	result;
 
-	if ( argc != 1 ) {
-		std::cerr << "Missing one argument" << std::endl;
+	if ( argc != 2 ) {
+		// Parse the arguments
+		for ( int i = 0 ; i < argc ; i++ ) {
+			line = argv[i];
+
+			if ( split_line('=',line, key, value) == false ) {
+				return CLI_ERROR_ARG;
+			}
+
+			update_job(key, value, job_to_remove);
+		}
+	} else {
+		// Parse std::cin
+		while ( std::cin >> line) {
+			if ( boost::regex_match(line, comment) == true || line.length() == 0 )
+				continue;
+
+			if ( split_line('=', line, key, value) == false )
+				return CLI_ERROR_ARG;
+
+			update_job(key, value, job_to_remove);
+		}
+
+		std::cerr << "Reading the input is not implemented yet!" << std::endl;
 		return CLI_ERROR_ARG;
 	}
-
-	if ( split_line('=', argv[0], key, job_to_remove.name) == false )
-		return CLI_ERROR_ARG;
 
 	job_to_remove.node_name = routing.target_node.name;
 	job_to_remove.domain = routing.target_node.domain_name;
@@ -464,13 +489,50 @@ int	cmd_connect(struct cli_def *cli, UNUSED(const char *command), char *argv[], 
 	cli->mode = MODE_CONNECTED;
 
 	free(cli->promptchar);
-	cli->promptchar = (char*) calloc(sizeof(char), strlen(routing.target_node.name.c_str()));
-	if ( sprintf(cli->promptchar, "%s> ", routing.target_node.name.c_str()) == 0 ) {
+	cli->promptchar = (char*) calloc(sizeof(char), strlen(routing.target_node.name.c_str()) + strlen(routing.target_node.domain_name.c_str()) +3);
+	if ( sprintf(cli->promptchar, "%s:%s> ", routing.target_node.name.c_str(), routing.target_node.domain_name.c_str()) == 0 ) {
 		printf("Cannot update the prompt!\n");
 		return CLI_ERROR;
 	}
 
 	return CLI_OK;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+int	cmd_use(struct cli_def *cli, UNUSED(const char *command), char *argv[], int argc) {
+	std::vector<std::string> result;
+
+	if ( argc != 1 ) {
+		std::cerr << "1 argument is required: <planning_name>" << std::endl;
+		return CLI_ERROR_ARG;
+	}
+
+	// Let's check if the domain exists
+
+	RPC_EXEC(client.get_handler()->get_available_planning_names(result, routing))
+
+	// TODO: segfault?
+	if ( result.size() == 0 ) {
+		std::cerr << "No planning available" << std::endl;
+		return CLI_ERROR;
+	}
+
+	if ( std::find(result.begin(), result.end(), argv[1])!=result.end() ) {
+		routing.target_node.domain_name = argv[1];
+		routing.calling_node.domain_name = argv[1];
+
+		free(cli->promptchar);
+		cli->promptchar = (char*) calloc(sizeof(char), strlen(routing.target_node.name.c_str()) + strlen(routing.target_node.domain_name.c_str()) +3);
+		if ( sprintf(cli->promptchar, "%s:%s> ", routing.target_node.name.c_str(), routing.target_node.domain_name.c_str()) == 0 ) {
+			printf("Cannot update the prompt!\n");
+			return CLI_ERROR;
+		}
+		return CLI_OK;
+	}
+
+	std::cerr << "Cannot find the given planning" << std::endl;
+	return CLI_ERROR;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -190,6 +190,17 @@ int	cmd_get_current_planning_name(UNUSED(struct cli_def *cli), UNUSED(const char
  */
 int	cmd_get_available_planning_names(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc));
 
+/**
+ * cmd_use
+ *
+ * Change the current planning used by the tool
+ *
+ * @arg	argv	the arguments
+ * @arg argc	the number of arguments
+ * @return	CLI_OK or CLI_ERROR
+ */
+int	cmd_use(struct cli_def *cli, UNUSED(const char *command), char *argv[], int argc);
+
 // ////////////////////////////////////////////////////////////////////////////
 //	monitoring
 // ////////////////////////////////////////////////////////////////////////////
@@ -261,7 +272,7 @@ void	clear_node(rpc::t_node _return);
  *
  * Updates the prompt (memory allocation)
  *
- * @arg	prompt	the target to update
+ * @arg	prompt		the target to update
  * @arg new_prompt	the new prompt
  *
  * @return	true on success
