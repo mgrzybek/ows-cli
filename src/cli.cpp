@@ -502,29 +502,29 @@ int	cmd_connect(struct cli_def *cli, UNUSED(const char *command), char *argv[], 
 
 int	cmd_use(struct cli_def *cli, UNUSED(const char *command), char *argv[], int argc) {
 	std::vector<std::string> result;
+	size_t	space_needed;
 
 	if ( argc != 1 ) {
 		std::cerr << "1 argument is required: <planning_name>" << std::endl;
 		return CLI_ERROR_ARG;
 	}
 
-	// Let's check if the domain exists
-
+	// We could create a dedicated RPC function such as "bool planning_exists(planning, routing)"
 	RPC_EXEC(client.get_handler()->get_available_planning_names(result, routing))
 
-	// TODO: segfault?
 	if ( result.size() == 0 ) {
 		std::cerr << "No planning available" << std::endl;
 		return CLI_ERROR;
 	}
 
-	if ( std::find(result.begin(), result.end(), argv[1])!=result.end() ) {
-		routing.target_node.domain_name = argv[1];
-		routing.calling_node.domain_name = argv[1];
+	if ( std::find(result.begin(), result.end(), argv[0]) != result.end() ) {
+		routing.target_node.domain_name = argv[0];
+		routing.calling_node.domain_name = argv[0];
 
 		free(cli->promptchar);
-		cli->promptchar = (char*) calloc(sizeof(char), strlen(routing.target_node.name.c_str()) + strlen(routing.target_node.domain_name.c_str()) +3);
-		if ( sprintf(cli->promptchar, "%s:%s> ", routing.target_node.name.c_str(), routing.target_node.domain_name.c_str()) == 0 ) {
+		space_needed = snprintf(NULL, 0, "%s:%s> ", routing.target_node.name.c_str(), routing.target_node.domain_name.c_str());
+		cli->promptchar = (char*) malloc(space_needed);
+		if ( snprintf(cli->promptchar, space_needed, "%s:%s> ", routing.target_node.name.c_str(), routing.target_node.domain_name.c_str()) == 0 ) {
 			printf("Cannot update the prompt!\n");
 			return CLI_ERROR;
 		}
