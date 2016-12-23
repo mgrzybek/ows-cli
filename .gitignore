@@ -1,2 +1,6 @@
 .DS_Store
+Makefile
 *.pro.user
+*.pro.user.*
+*.o
+*.stash
