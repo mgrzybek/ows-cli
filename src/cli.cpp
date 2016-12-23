@@ -223,6 +223,10 @@ int	cmd_add_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *
 	bool		result;
 	boost::regex	comment("^#.*?$", boost::regex::perl);
 
+
+	// By default the job belongs to the connected domain
+	job_to_add.domain = routing.target_node.domain_name;
+
 	if ( argc != 0 ) {
 		// Parse the arguments
 		for ( int i = 0 ; i < argc ; i++ ) {
@@ -461,6 +465,7 @@ int	cmd_monitor_waiting_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *com
 int	cmd_connect(struct cli_def *cli, UNUSED(const char *command), char *argv[], int argc) {
 	rpc::t_hello	hello_result;
 	int		port = 8080;
+	boost::regex expr{"\\d+"};
 
 	if ( argc != 2 && argc != 3 ) {
 		std::cerr << "2 or 3 args are required: <domain> <hostname> [port]" << std::endl;
@@ -472,6 +477,10 @@ int	cmd_connect(struct cli_def *cli, UNUSED(const char *command), char *argv[], 
 	routing.calling_node.name = "ows-cli";
 
 	if ( argc == 3 )
+		if ( boost::regex_match(argv[2], expr) == false ) {
+			printf("The given port is not a number!\n");
+			return CLI_ERROR;
+		}
 		port = boost::lexical_cast<int>(argv[2]);
 
 	// TODO: check the port using a regex "\d" to avoid exceptions from the lexical_cast

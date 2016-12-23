@@ -31,6 +31,7 @@
 #include <algorithm>
 
 #include <boost/foreach.hpp>
+#include <boost/regex.hpp>
 
 #include "text_processing.h"
 #include "libcli.h"
