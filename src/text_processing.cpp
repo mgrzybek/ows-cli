@@ -27,6 +27,13 @@
 
 #include "text_processing.h"
 
+std::string	bool_to_string(const bool& v) {
+	if ( v == true )
+		return std::string("true");
+	else
+		return std::string("false");
+}
+
 void	update_node(const std::string& key, const std::string& value, rpc::t_node& node) {
 	if ( key.compare("name") == 0 ) {
 		node.name = value;
@@ -46,8 +53,8 @@ void	update_job(const std::string& key, const std::string& value, rpc::t_job& jo
 		job.name = value;
 	} else if ( key.compare("weight") == 0 ) {
 		job.weight = boost::lexical_cast<int>(value);
-	} else if ( key.compare("domain_name") == 0 ) {
-		job.domain = value;
+//	} else if ( key.compare("domain_name") == 0 ) {
+//		job.domain = value;
 	} else if ( key.compare("cmd_line") == 0 ) {
 		job.cmd_line = value;
 	} else if ( key.compare("node_name") == 0 ) {

@@ -25,6 +25,7 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+#include <iostream>
 #include <string>
 #include <boost/regex.hpp>
 #include <boost/foreach.hpp>
@@ -34,6 +35,30 @@
 
 #include "convertions.h"
 #include "model_types.h"
+
+
+/**
+ * @brief The e_output_type enum
+ *
+ * Used to print result in JSON or plain text.
+ */
+enum e_output_type {
+	json,
+	plain
+};
+
+struct s_printing_options {
+	bool			verbose	= false;
+	e_output_type	output_type = plain;
+	char			indent_character = '	';
+};
+
+/**
+ * @brief bool_to_string
+ * @param v
+ * @return "true" or "false"
+ */
+std::string	bool_to_string(const bool& v);
 
 /**
  * update_node

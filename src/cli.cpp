@@ -29,6 +29,12 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#define VERBOSE_PRINT(text) \
+if ( print_opts.verbose ) \
+	std::cout << text << std::endl;
+
+///////////////////////////////////////////////////////////////////////////////
+
 #define RPC_EXEC(command) \
 try { \
 	if ( client.get_handler() == NULL ) { \
@@ -125,25 +131,29 @@ bool	cli_add_commands(struct cli_def* cli) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int	cmd_get_nodes(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc)) {
+int	cmd_get_nodes(UNUSED(struct cli_def *cli), const char *command, UNUSED(char *argv[]), UNUSED(int argc)) {
 	rpc::v_nodes	nodes;
+
+	VERBOSE_PRINT(command)
 
 	RPC_EXEC(client.get_handler()->get_nodes(nodes, routing))
 
-	std::for_each(nodes.begin(), nodes.end(), print_node);
+	print_nodes(print_opts, 0, nodes);
 
 	return CLI_OK;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int	cmd_add_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc) {
+int	cmd_add_node(UNUSED(struct cli_def *cli), const char *command, char *argv[], int argc) {
 	rpc::t_node	node_to_add;
 	std::string	line;
 	std::string	key;
 	std::string	value;
 	bool		result;
 	boost::regex	comment("^#.*?$", boost::regex::perl);
+
+	VERBOSE_PRINT(command)
 
 	if ( argc != 0 ) {
 		// Parse the arguments
@@ -183,13 +193,15 @@ int	cmd_add_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), char 
 	return CLI_OK;
 }
 
-int	cmd_remove_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc) {
+int	cmd_remove_node(UNUSED(struct cli_def *cli), const char *command, char *argv[], int argc) {
 	bool		result;
 	rpc::t_node	node_to_remove;
 	std::string key;
 //	boost::regex	spaces("[[:space:]]+", boost::regex::perl);
 //	boost::regex	comment("^#.*?$", boost::regex::perl);
 //	boost::regex	comment_endl("#.*?$", boost::regex::perl);
+
+	VERBOSE_PRINT(command)
 
 	// TODO: check the number of arguments required by the CLI and the node
 	if ( argc != 2 ) {
@@ -215,7 +227,7 @@ int	cmd_remove_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), ch
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int	cmd_add_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc) {
+int	cmd_add_job(UNUSED(struct cli_def *cli), const char *command, char *argv[], int argc) {
 	rpc::t_job	job_to_add;
 	std::string	line;
 	std::string	key;
@@ -223,6 +235,7 @@ int	cmd_add_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *
 	bool		result;
 	boost::regex	comment("^#.*?$", boost::regex::perl);
 
+	VERBOSE_PRINT(command)
 
 	// By default the job belongs to the connected domain
 	job_to_add.domain = routing.target_node.domain_name;
@@ -269,7 +282,7 @@ int	cmd_add_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *
 	return CLI_OK;
 }
 
-int	cmd_remove_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc) {
+int	cmd_remove_job(UNUSED(struct cli_def *cli), const char *command, char *argv[], int argc) {
 	rpc::t_job	job_to_remove;
 	std::string	key;
 	std::string	value;
@@ -278,6 +291,8 @@ int	cmd_remove_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), cha
 	boost::regex	comment("^#.*?$", boost::regex::perl);
 //	boost::regex	comment_endl("#.*?$", boost::regex::perl);
 	bool	result;
+
+	VERBOSE_PRINT(command)
 
 	if ( argc != 2 ) {
 		// Parse the arguments
@@ -321,12 +336,14 @@ int	cmd_remove_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), cha
 	return CLI_OK;
 }
 
-int	cmd_update_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc) {
+int	cmd_update_job(UNUSED(struct cli_def *cli), const char *command, char *argv[], int argc) {
 	rpc::t_job	job_to_update;
 	std::string	line;
 	std::string	key;
 	std::string	value;
 	boost::regex	comment("^#.*?$", boost::regex::perl);
+
+	VERBOSE_PRINT(command)
 
 	std::cout << "argc == " << argc << std::endl;
 
@@ -368,8 +385,10 @@ int	cmd_update_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), cha
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int	cmd_update_job_state(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc) {
+int	cmd_update_job_state(UNUSED(struct cli_def *cli), const char *command, char *argv[], int argc) {
 	rpc::t_job	job;
+
+	VERBOSE_PRINT(command)
 
 	if ( argc != 2 ) {
 		std::cerr << "Needs two arguments: job_name and job_state" << std::endl;
@@ -386,34 +405,40 @@ int	cmd_update_job_state(UNUSED(struct cli_def *cli), UNUSED(const char *command
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int	cmd_get_ready_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc)) {
+int	cmd_get_ready_jobs(UNUSED(struct cli_def *cli), const char *command, UNUSED(char *argv[]), UNUSED(int argc)) {
 	rpc::v_jobs	ready_jobs;
+
+	VERBOSE_PRINT(command)
 
 	RPC_EXEC(client.get_handler()->get_ready_jobs(ready_jobs, routing))
 
-	print_jobs(ready_jobs);
+	print_jobs(print_opts, 0, ready_jobs);
+	std::cout << std::endl;
 
 	return CLI_OK;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int	cmd_get_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc)) {
+int	cmd_get_jobs(UNUSED(struct cli_def *cli), const char *command, UNUSED(char *argv[]), UNUSED(int argc)) {
 	rpc::v_jobs	jobs;
+
+	VERBOSE_PRINT(command)
 
 	RPC_EXEC(client.get_handler()->get_jobs(jobs, routing))
 
-	BOOST_FOREACH(rpc::t_job job, jobs) {
-		print_job(job);
-	}
+	print_jobs(print_opts, 0, jobs);
+	std::cout << std::endl;
 
 	return CLI_OK;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int	cmd_monitor_failed_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc)) {
+int	cmd_monitor_failed_jobs(UNUSED(struct cli_def *cli), const char *command, UNUSED(char *argv[]), UNUSED(int argc)) {
 	rpc::integer	result = 0;
+
+	VERBOSE_PRINT(command)
 
 	RPC_EXEC_RESULT_RETURN(client.get_handler()->monitor_failed_jobs(routing))
 
@@ -424,8 +449,10 @@ int	cmd_monitor_failed_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *comm
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int	cmd_get_current_planning_name(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc)) {
+int	cmd_get_current_planning_name(UNUSED(struct cli_def *cli), const char *command, UNUSED(char *argv[]), UNUSED(int argc)) {
 	std::string	result;
+
+	VERBOSE_PRINT(command)
 
 	RPC_EXEC(client.get_handler()->get_current_planning_name(result, routing))
 
@@ -436,8 +463,10 @@ int	cmd_get_current_planning_name(UNUSED(struct cli_def *cli), UNUSED(const char
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int	cmd_get_available_planning_names(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc)) {
+int	cmd_get_available_planning_names(UNUSED(struct cli_def *cli), const char *command, UNUSED(char *argv[]), UNUSED(int argc)) {
 	std::vector<std::string> result;
+
+	VERBOSE_PRINT(command)
 
 	RPC_EXEC(client.get_handler()->get_available_planning_names(result, routing))
 
@@ -450,8 +479,10 @@ int	cmd_get_available_planning_names(UNUSED(struct cli_def *cli), UNUSED(const c
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int	cmd_monitor_waiting_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc)) {
+int	cmd_monitor_waiting_jobs(UNUSED(struct cli_def *cli), const char *command, UNUSED(char *argv[]), UNUSED(int argc)) {
 	rpc::integer	result = 0;
+
+	VERBOSE_PRINT(command)
 
 	RPC_EXEC_RESULT_RETURN(client.get_handler()->monitor_waiting_jobs(routing))
 
@@ -462,10 +493,12 @@ int	cmd_monitor_waiting_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *com
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int	cmd_connect(struct cli_def *cli, UNUSED(const char *command), char *argv[], int argc) {
+int	cmd_connect(struct cli_def *cli, const char *command, char *argv[], int argc) {
 	rpc::t_hello	hello_result;
 	int		port = 8080;
 	boost::regex expr{"\\d+"};
+
+	VERBOSE_PRINT(command)
 
 	if ( argc != 2 && argc != 3 ) {
 		std::cerr << "2 or 3 args are required: <domain> <hostname> [port]" << std::endl;
@@ -476,12 +509,13 @@ int	cmd_connect(struct cli_def *cli, UNUSED(const char *command), char *argv[], 
 	routing.calling_node.domain_name = argv[0];
 	routing.calling_node.name = "ows-cli";
 
-	if ( argc == 3 )
+	if ( argc == 3 ) {
 		if ( boost::regex_match(argv[2], expr) == false ) {
 			printf("The given port is not a number!\n");
 			return CLI_ERROR;
 		}
 		port = boost::lexical_cast<int>(argv[2]);
+	}
 
 	// TODO: check the port using a regex "\d" to avoid exceptions from the lexical_cast
 	if ( client.open(argv[1], boost::lexical_cast<int>(port)) == false )
@@ -509,9 +543,11 @@ int	cmd_connect(struct cli_def *cli, UNUSED(const char *command), char *argv[], 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int	cmd_use(struct cli_def *cli, UNUSED(const char *command), char *argv[], int argc) {
+int	cmd_use(struct cli_def *cli, const char *command, char *argv[], int argc) {
 	std::vector<std::string> result;
 	size_t	space_needed;
+
+	VERBOSE_PRINT(command)
 
 	if ( argc != 1 ) {
 		std::cerr << "1 argument is required: <planning_name>" << std::endl;
@@ -546,7 +582,13 @@ int	cmd_use(struct cli_def *cli, UNUSED(const char *command), char *argv[], int 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int	cmd_close(struct cli_def *cli, UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc)) {
+int	cmd_close(struct cli_def *cli, const char *command, UNUSED(char *argv[]), UNUSED(int argc)) {
+	m_kv values = {
+		{"command", std::string(command)}
+	};
+
+	print_kv(print_opts, 0, values);
+
 	if ( client.close() == false )
 		return CLI_ERROR;
 
@@ -563,14 +605,19 @@ int	cmd_close(struct cli_def *cli, UNUSED(const char *command), UNUSED(char *arg
 
 ///////////////////////////////////////////////////////////////////////////////
 
-int	cmd_hello(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc)) {
+int	cmd_hello(UNUSED(struct cli_def *cli), const char *command, UNUSED(char *argv[]), UNUSED(int argc)) {
 	rpc::t_hello	hello_result;
 
 	RPC_EXEC(client.get_handler()->hello(hello_result, routing.target_node))
 
-	std::cout << "domain: " << hello_result.domain << std::endl
-	<< "master: " << hello_result.is_master << std::endl
-	<< "name: " << hello_result.name << std::endl;
+	m_kv values = {
+		{"command",	std::string(command)},
+		{"domain",	std::string(hello_result.domain)},
+		{"master",	bool_to_string(hello_result.is_master)},
+		{"name",	std::string(hello_result.name)}
+	};
+
+	print_kv(print_opts, 0, values);
 
 	return CLI_OK;
 }
@@ -615,15 +662,7 @@ void	usage() {
 int	main(const int argc, char const* argv[]) {
 	struct cli_def*	cli = NULL;
 	bool	interactive = true;
-
-	/*
-	 * Args checking
-	 * Do we print help or continue?
-	 */
-	if ( argc == 2 && strcmp(argv[1], "-h") == 0 ) {
-		usage();
-		return EXIT_SUCCESS;
-	}
+	boost::program_options::variables_map opts_variables;
 
 	/*
 	 * Args checking
@@ -631,6 +670,45 @@ int	main(const int argc, char const* argv[]) {
 	 */
 	if ( argc == 2 && strcmp(argv[1], "-") == 0 ) {
 		interactive = false;
+	} else {
+
+		boost::program_options::options_description desc("Allowed options");
+		desc.add_options()
+			("help,h", "produce help")
+			("verbose,v", "set verbosity on")
+			("output", boost::program_options::value<std::string>(), "the output format")
+			("domain", boost::program_options::value<std::string>(), "the domain to use")
+			("hostname", boost::program_options::value<std::string>(), "the endpoint")
+		;
+
+		boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), opts_variables);
+		boost::program_options::notify(opts_variables);
+
+		if (opts_variables.count("help")) {
+			std::cout << desc << "\n";
+			return EXIT_SUCCESS;
+		}
+
+		if ( opts_variables.count("verbose")) {
+			VERBOSE_PRINT("verbose set to true")
+			print_opts.verbose = true;
+		}
+
+		if ( opts_variables.count("output")) {
+			std::string _output = opts_variables["output"].as<std::string>();
+			if ( _output.compare("plain") == 0 ) {
+				VERBOSE_PRINT("output set to plain")
+				print_opts.output_type = plain;
+			} else {
+				if ( _output.compare("json") == 0 ) {
+					VERBOSE_PRINT("output set to json")
+					print_opts.output_type = json;
+				} else {
+					std::cerr << "bad output format" << std::endl;
+					return EXIT_FAILURE;
+				}
+			}
+		}
 	}
 
 	/*
@@ -652,11 +730,11 @@ int	main(const int argc, char const* argv[]) {
 		/*
 		 * Do we have the domain and hostname as arguments?
 		 */
-		if ( argc == 3 ) {
+		if ( opts_variables.count("domain") && opts_variables.count("hostname") ) {
 			std::string cmd = "connect ";
-			cmd += argv[1];
+			cmd += opts_variables["domain"].as<std::string>();
 			cmd += " ";
-			cmd += argv[2];
+			cmd += opts_variables["hostname"].as<std::string>();
 			cli_run_command(cli, cmd.c_str());
 		}
 

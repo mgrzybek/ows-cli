@@ -32,14 +32,16 @@
 
 #include <boost/foreach.hpp>
 #include <boost/regex.hpp>
+#include <boost/program_options.hpp>
 
-#include "text_processing.h"
 #include "libcli.h"
 #include "printing.h"
 #include "rpc_client.h"
 
+s_printing_options print_opts;
+
 /**
- * cli_add_commands
+ * @brief cli_add_commands
  *
  * Adds the user commands to the cli_def struct
  *
@@ -75,7 +77,7 @@ rpc::t_routing_data    routing;
  *
  * @return	CLI_OK or CLI_ERROR
  */
-int	cmd_get_nodes(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc));
+int	cmd_get_nodes(UNUSED(struct cli_def *cli), const char *command, UNUSED(char *argv[]), UNUSED(int argc));
 
 /**
  * cmd_add_node
@@ -86,7 +88,7 @@ int	cmd_get_nodes(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUS
  * @arg argc	the number of arguments
  * @return	CLI_OK or CLI_ERROR
  */
-int	cmd_add_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc);
+int	cmd_add_node(UNUSED(struct cli_def *cli), const char *command, char *argv[], int argc);
 
 /**
  * cmd_remove_node
@@ -97,7 +99,7 @@ int	cmd_add_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), char 
  * @arg argc	the number of arguments
  * @return	CLI_OK or CLI_ERROR
  */
-int	cmd_remove_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc);
+int	cmd_remove_node(UNUSED(struct cli_def *cli), const char *command, char *argv[], int argc);
 
 // ////////////////////////////////////////////////////////////////////////////
 //	jobs
@@ -112,7 +114,7 @@ int	cmd_remove_node(UNUSED(struct cli_def *cli), UNUSED(const char *command), ch
  * @arg argc	the number of arguments
  * @return	CLI_OK or CLI_ERROR
  */
-int	cmd_add_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc);
+int	cmd_add_job(UNUSED(struct cli_def *cli), const char *command, char *argv[], int argc);
 
 /**
  * cmd_remove_job
@@ -123,7 +125,7 @@ int	cmd_add_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *
  * @arg argc	the number of arguments
  * @return	CLI_OK or CLI_ERROR
  */
-int	cmd_remove_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc);
+int	cmd_remove_job(UNUSED(struct cli_def *cli), const char *command, char *argv[], int argc);
 
 /**
  * cmd_update_job
@@ -134,7 +136,7 @@ int	cmd_remove_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), cha
  * @arg argc	the number of arguments
  * @return	CLI_OK or CLI_ERROR
  */
-int	cmd_update_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc);
+int	cmd_update_job(UNUSED(struct cli_def *cli), const char *command, char *argv[], int argc);
 
 /**
  * cmd_get_ready_jobs
@@ -143,7 +145,7 @@ int	cmd_update_job(UNUSED(struct cli_def *cli), UNUSED(const char *command), cha
  *
  * @return	CLI_OK or CLI_ERROR
  */
-int	cmd_get_ready_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc));
+int	cmd_get_ready_jobs(UNUSED(struct cli_def *cli), const char *command, UNUSED(char *argv[]), UNUSED(int argc));
 
 /**
  * cmd_get_jobs
@@ -152,7 +154,7 @@ int	cmd_get_ready_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command),
  *
  * @return	CLI_OK or CLI_ERROR
  */
-int	cmd_get_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc));
+int	cmd_get_jobs(UNUSED(struct cli_def *cli), const char *command, UNUSED(char *argv[]), UNUSED(int argc));
 
 /**
  * cmd_update_job_state
@@ -163,7 +165,7 @@ int	cmd_get_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSE
  * @arg argc	the number of arguments
  * @return	CLI_OK or CLI_ERROR
  */
-int	cmd_update_job_state(UNUSED(struct cli_def *cli), UNUSED(const char *command), char *argv[], int argc);
+int	cmd_update_job_state(UNUSED(struct cli_def *cli), const char *command, char *argv[], int argc);
 
 // ////////////////////////////////////////////////////////////////////////////
 //	planning
@@ -178,7 +180,7 @@ int	cmd_update_job_state(UNUSED(struct cli_def *cli), UNUSED(const char *command
  * @arg argc	the number of arguments
  * @return	CLI_OK or CLI_ERROR
  */
-int	cmd_get_current_planning_name(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc));
+int	cmd_get_current_planning_name(UNUSED(struct cli_def *cli), const char *command, UNUSED(char *argv[]), UNUSED(int argc));
 
 /**
  * cmd_get_available_planning_names
@@ -189,7 +191,7 @@ int	cmd_get_current_planning_name(UNUSED(struct cli_def *cli), UNUSED(const char
  * @arg argc	the number of arguments
  * @return	CLI_OK or CLI_ERROR
  */
-int	cmd_get_available_planning_names(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc));
+int	cmd_get_available_planning_names(UNUSED(struct cli_def *cli), const char *command, UNUSED(char *argv[]), UNUSED(int argc));
 
 /**
  * cmd_use
@@ -200,7 +202,7 @@ int	cmd_get_available_planning_names(UNUSED(struct cli_def *cli), UNUSED(const c
  * @arg argc	the number of arguments
  * @return	CLI_OK or CLI_ERROR
  */
-int	cmd_use(struct cli_def *cli, UNUSED(const char *command), char *argv[], int argc);
+int	cmd_use(struct cli_def *cli, const char *command, char *argv[], int argc);
 
 // ////////////////////////////////////////////////////////////////////////////
 //	monitoring
@@ -213,7 +215,7 @@ int	cmd_use(struct cli_def *cli, UNUSED(const char *command), char *argv[], int 
  *
  * @return	CLI_OK or CLI_ERROR
  */
-int	cmd_monitor_failed_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc));
+int	cmd_monitor_failed_jobs(UNUSED(struct cli_def *cli), const char *command, UNUSED(char *argv[]), UNUSED(int argc));
 
 /**
  * monitor_waiting_jobs
@@ -222,7 +224,7 @@ int	cmd_monitor_failed_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *comm
  *
  * @return	CLI_OK or CLI_ERROR
  */
-int	cmd_monitor_waiting_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc));
+int	cmd_monitor_waiting_jobs(UNUSED(struct cli_def *cli), const char *command, UNUSED(char *argv[]), UNUSED(int argc));
 
 // ////////////////////////////////////////////////////////////////////////////
 //	misc
@@ -237,7 +239,7 @@ int	cmd_monitor_waiting_jobs(UNUSED(struct cli_def *cli), UNUSED(const char *com
  *
  * @return	CLI_OK or CLI_ERROR
  */
-int	cmd_connect(struct cli_def *cli, UNUSED(const char *command), char *argv[], int argc);
+int	cmd_connect(struct cli_def *cli, const char *command, char *argv[], int argc);
 
 /**
  * cmd_close
@@ -248,7 +250,7 @@ int	cmd_connect(struct cli_def *cli, UNUSED(const char *command), char *argv[], 
  *
  * @return	CLI_OK or CLI_ERROR
  */
-int	cmd_close(struct cli_def *cli, UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc));
+int	cmd_close(struct cli_def *cli, const char *command, UNUSED(char *argv[]), UNUSED(int argc));
 
 /**
  * cmd_hello
@@ -257,7 +259,7 @@ int	cmd_close(struct cli_def *cli, UNUSED(const char *command), UNUSED(char *arg
  *
  * @return	CLI_OK or CLI_ERROR
  */
-int	cmd_hello(UNUSED(struct cli_def *cli), UNUSED(const char *command), UNUSED(char *argv[]), UNUSED(int argc));
+int	cmd_hello(UNUSED(struct cli_def *cli), const char *command, UNUSED(char *argv[]), UNUSED(int argc));
 
 /**
  * clear_node

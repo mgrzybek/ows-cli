@@ -28,14 +28,27 @@
 #ifndef _PRINTING_H_
 #include <iostream>
 #include <algorithm>
+#include <unordered_map>
 #include <boost/foreach.hpp>
 
 #include "convertions.h"
 #include "model_types.h"
 
-void	print_node(const rpc::t_node& node);
+#include "text_processing.h"
 
-void	print_jobs(const rpc::v_jobs& jobs);
-void	print_job(const rpc::t_job& job);
+typedef std::unordered_map<std::string, std::string> m_kv;
+
+void	get_indent(const s_printing_options& opts, const uint& numbera, std::string& _return);
+
+void	print_kv(const s_printing_options& opts, const uint& indent, const m_kv& kv);
+
+void	print_nodes(const s_printing_options& opts, const uint& indent, const rpc::v_nodes& nodes);
+void	print_node(const s_printing_options& opts, const uint& indent, const rpc::t_node& node);
+
+void	print_jobs(const s_printing_options& opts, const uint& indent, const rpc::v_jobs& jobs);
+void	print_job(const s_printing_options& opts, const uint& indent, const rpc::t_job& job);
+
+void	print_resources(const s_printing_options& opts, const uint& indent, const rpc::v_resources& resources);
+void	print_resource(const s_printing_options& opts, const uint& indent, const rpc::t_resource& resource);
 
 #endif // _PRINTING_H_
