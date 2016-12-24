@@ -32,11 +32,12 @@
 		-L/usr/local/lib \
 		/usr/local/lib/libboost_regex.a \
 		/usr/local/lib/libboost_filesystem.a \
+		/usr/local/lib/libboost_program_options.a \
 		/usr/local/lib/libboost_system.a \
 		-lssl \
 		-lpthread \
 		-lm \
-		-lz 
+		-lz
 
 	INCLUDEPATH +=  /usr/local/include \
 		/usr/local/include/thrift \

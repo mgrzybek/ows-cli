@@ -31,6 +31,7 @@ linux {
 		-L/usr/local/lib \
 		/usr/lib/libboost_regex.a \
 		/usr/lib/libboost_filesystem.a \
+		/usr/lib/libboost_program_options.a \
 		/usr/lib/libboost_system.a \
 		-lssl \
 		-lpthread \

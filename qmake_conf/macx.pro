@@ -32,6 +32,7 @@ macx {
 		-L/usr/lib \
 		-L/usr/local/lib \
 		/opt/local/lib/libboost_regex-mt.a \
+		/opt/local/lib/libboost_program_options-mt.a \
 		/opt/local/lib/libboost_system-mt.a \
 		-lssl \
 		-lpthread \
