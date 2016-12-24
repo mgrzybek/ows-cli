@@ -4,10 +4,13 @@
 
 ```
 $ ./ows-cli -h
-ows-cli [(<domain_name> <hostname>) | -]
-	<domain_name>	: the domain's name to connect against
-	<hostname>		: the node to connect against
-	-				: read stdin as input
+Allowed options:
+  -h [ --help ]            produce help
+  -v [ --verbose ]         set verbosity on
+  - [ --non-interactive ]  read stdin as input
+  --output arg             the output format (plain or json)
+  --domain arg             the domain to use
+  --hostname arg           the endpoint
 $
 ```
 
@@ -86,7 +89,7 @@ This program is based on both [libcli] [3] and [OWS] [1].
 * Download [open-workload-scheduler] [1]
 
 ```
-$ git clone git://github.com/MisterG/open-workload-scheduler.git
+$ git clone git://github.com/mgrzybek/open-workload-scheduler.git
 ```
 
 * Generate the Thrift's source code
@@ -107,7 +110,7 @@ $ patch -p1 < patch/platform.path
 
 ```
 $ cd ..
-$ git clone  git://github.com/MisterG/ows-cli.git
+$ git clone  git://github.com/mgrzybek/ows-cli.git
 ```
 
 * Create the Makefile according to the binary you want to build
@@ -123,6 +126,6 @@ $ qmake
 $ make
 ```
 
-[1]: https://github.com/MisterG/open-workload-scheduler "open-workload-scheduler"
-[2]: https://github.com/MisterG/ows-cli "ows-cli"
+[1]: https://github.com/mgrzybek/open-workload-scheduler "open-workload-scheduler"
+[2]: https://github.com/mgrzybek/ows-cli "ows-cli"
 [3]: https://github.com/dparrish/libcli?source=cc "libcli"
