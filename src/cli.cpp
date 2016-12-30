@@ -676,7 +676,8 @@ int	main(const int argc, char const* argv[]) {
 		desc.add_options()
 			("help,h", "produce help")
 			("verbose,v", "set verbosity on")
-			("output", boost::program_options::value<std::string>(), "the output format")
+			("non-interactive,", "read stdin as input")
+			("output", boost::program_options::value<std::string>(), "the output format (plain or json)")
 			("domain", boost::program_options::value<std::string>(), "the domain to use")
 			("hostname", boost::program_options::value<std::string>(), "the endpoint")
 		;
@@ -687,6 +688,11 @@ int	main(const int argc, char const* argv[]) {
 		if (opts_variables.count("help")) {
 			std::cout << desc << "\n";
 			return EXIT_SUCCESS;
+		}
+
+		if ( opts_variables.count("non-interactive")) {
+			VERBOSE_PRINT("non-interactive mode set to true")
+			interactive = false;
 		}
 
 		if ( opts_variables.count("verbose")) {

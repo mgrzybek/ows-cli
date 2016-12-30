@@ -33,6 +33,7 @@ linux {
 		/usr/lib/libboost_filesystem.a \
 		/usr/lib/libboost_program_options.a \
 		/usr/lib/libboost_system.a \
+		/usr/lib/liblog4cpp.a \
 		-lssl \
 		-lpthread \
 		-lcrypto \

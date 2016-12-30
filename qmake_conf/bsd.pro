@@ -34,6 +34,7 @@
 		/usr/local/lib/libboost_filesystem.a \
 		/usr/local/lib/libboost_program_options.a \
 		/usr/local/lib/libboost_system.a \
+		/usr/local/lib/liblog4cpp.a \
 		-lssl \
 		-lpthread \
 		-lm \

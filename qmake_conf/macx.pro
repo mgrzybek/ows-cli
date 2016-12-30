@@ -34,6 +34,7 @@ macx {
 		/opt/local/lib/libboost_regex-mt.a \
 		/opt/local/lib/libboost_program_options-mt.a \
 		/opt/local/lib/libboost_system-mt.a \
+		/opt/local/lib/liblog4cpp.a \
 		-lssl \
 		-lpthread \
 		-lcrypto \

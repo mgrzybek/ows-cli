@@ -80,17 +80,26 @@ void	print_kv(const s_printing_options& opts, const uint& indent, const m_kv& kv
 }
 
 void	print_nodes(const s_printing_options& opts, const uint& indent, const rpc::v_nodes& nodes) {
+	std::string	str_indent;
+	get_indent(opts, indent, str_indent);
+
 	if ( opts.output_type == plain ) {
 		BOOST_FOREACH(rpc::t_node node, nodes) {
 			print_node(opts, indent + 1, node);
 		}
 	} else {
-		std::cout << "[";
+		size_t	iter = 0;
+
+		std::cout << str_indent << "[" << std::endl;
 		BOOST_FOREACH(rpc::t_node node, nodes) {
-			std::cout << std::endl;
 			print_node(opts, indent + 1, node);
+			if ( iter < nodes.size() - 1 ) {
+				std::cout << ",";
+			}
+			iter++;
+			std::cout << std::endl;
 		}
-		std::cout << "]" << std::endl;
+		std::cout << str_indent << "]" << std::endl;
 	}
 }
 
@@ -113,7 +122,7 @@ void	print_node(const s_printing_options& opts, const uint& indent, const rpc::t
 
 		get_indent(opts, indent + 1, str_indent);
 		std::cout << str_indent << "'domain':'" << node.domain_name << "'," << std::endl
-				  << str_indent << "'name':'" << node.name << "," << std::endl
+				  << str_indent << "'name':'" << node.name << "'," << std::endl
 				  << str_indent << "'weight':" << node.weight << "," << std::endl;
 
 		std::cout << str_indent << "'jobs':";
@@ -144,10 +153,16 @@ void	print_jobs(const s_printing_options& opts, const uint& indent, const rpc::v
 			print_job(opts, indent, job);
 		}
 	} else {
+		size_t	iter = 0;
+
 		std::cout << "[" << std::endl;
 		BOOST_FOREACH(rpc::t_job job, jobs) {
 			print_job(opts, indent, job);
+
+			if ( iter < jobs.size() - 1 )
+				std::cout << ",";
 			std::cout << std::endl;
+			iter++;
 		}
 		get_indent(opts, indent, str_indent);
 		std::cout << str_indent << "]";
@@ -183,10 +198,17 @@ void	print_resources(const s_printing_options& opts, const uint& indent, const r
 		}
 	} else {
 		std::cout << "[" << std::endl;
+
 		BOOST_FOREACH(rpc::t_resource resource, resources) {
+			size_t	iter = 0;
 			print_resource(opts, indent, resource);
+
+			iter++;
+			if ( iter < resources.size() - 1 )
+				std::cout << str_indent << ",";
 			std::cout << std::endl;
 		}
+
 		get_indent(opts, indent, str_indent);
 		std::cout << str_indent << "]";
 	}
