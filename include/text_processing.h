@@ -54,6 +54,34 @@ struct s_printing_options {
 };
 
 /**
+ * @brief recovery_type_to_string
+ * @param t
+ * @return the type as string
+ */
+std::string	recovery_type_action_to_string(const rpc::t_recovery_type& t);
+
+/**
+ * @brief time_constraint_type_to_string
+ * @param t
+ * @return the enum type as a string
+ */
+std::string	time_constraint_type_to_string(const rpc::e_time_constraint_type::type& t);
+
+/**
+ * @brief time_constraint_to_string
+ * @param tc
+ * @return a comma-separated string
+ */
+std::string	time_constraint_to_string(const rpc::t_time_constraint& tc);
+
+/**
+ * @brief strings_to_string
+ * @param v
+ * @return a comma-separated string
+ */
+std::string	strings_to_string(const std::vector<std::string>& v);
+
+/**
  * @brief bool_to_string
  * @param v
  * @return "true" or "false"

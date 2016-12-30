@@ -176,8 +176,70 @@ void	print_job(const s_printing_options& opts, const uint& indent, const rpc::t_
 	if ( opts.output_type == plain ) {
 		std::cout << str_indent << "name:	" << job.name << std::endl;
 		std::cout << str_indent << "state:	" << build_string_from_job_state(job.state) << std::endl;
+		std::cout << str_indent << ":cmd_line	" << job.cmd_line << std::endl;
 	} else {
-		std::cout << str_indent << "{'name':'" << job.name << "','state':'" << build_string_from_job_state(job.state) << "'}";
+		std::cout << str_indent
+				  << "{'name':'" << job.name
+				  << "','state':'" << build_string_from_job_state(job.state)
+				  << "','cmd_line':" << job.cmd_line
+				  << "','node_name':'" << job.node_name
+				  << ",'next':" << strings_to_string(job.nxt)
+				  << ",'prv':" << strings_to_string(job.prv)
+				  << ",'recovery_type':" << recovery_type_action_to_string(job.recovery_type)
+				  << ",'return_code':" << job.return_code
+				  << ",'start_time':" << job.start_time
+				  << ",'stop_time':" << job.stop_time
+				  << ",'time_constraints':";
+		print_time_constraints(opts, indent + 1, job.time_constraints);
+		get_indent(opts, indent, str_indent);
+		std::cout << std::endl << str_indent << ",'weight':" << job.weight << "}";
+	}
+}
+
+void	print_time_constraints(const s_printing_options& opts, const uint& indent, const rpc::v_time_constraints& tcs) {
+	std::string	str_indent;
+
+	if ( tcs.size() == 0 ) {
+		if ( opts.output_type == json )
+			std::cout << "[]";
+		return;
+	}
+
+	get_indent(opts, indent, str_indent);
+
+	if ( opts.output_type == plain ) {
+		BOOST_FOREACH(rpc::t_time_constraint tc, tcs) {
+			print_time_constraint(opts, indent, tc);
+		}
+	} else {
+		std::cout << "[" << std::endl;
+
+		BOOST_FOREACH(rpc::t_time_constraint tc, tcs) {
+			size_t	iter = 0;
+			print_time_constraint(opts, indent, tc);
+
+			iter++;
+			if ( iter < tcs.size() - 1 )
+				std::cout << str_indent << ",";
+			std::cout << std::endl;
+		}
+
+		get_indent(opts, indent, str_indent);
+		std::cout << str_indent << "]";
+	}
+}
+
+void	print_time_constraint(const s_printing_options& opts, const uint& indent, const rpc::t_time_constraint& tc) {
+	std::string	str_indent;
+	get_indent(opts, indent, str_indent);
+
+	if ( opts.output_type == plain ) {
+		std::cout << time_constraint_to_string(tc);
+	} else {
+		std::cout << str_indent
+				  << "{'type':'" << time_constraint_type_to_string(tc.type)
+				  << "', 'value':" << tc.value
+				  << "}";
 	}
 }
 

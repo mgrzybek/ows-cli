@@ -54,8 +54,8 @@ try { \
 } catch (const rpc::ex_processing& e) { \
 	std::cerr << "ex_processing: " << e.msg << std::endl; \
 	return CLI_ERROR; \
-} catch (...) { \
-	std::cerr << "Undefined exception occured" << std::endl; \
+} catch (std::exception& e) { \
+	std::cerr << "Undefined exception occured:" << e.what() << std::endl; \
 	return CLI_ERROR; \
 }
 
@@ -80,8 +80,8 @@ try { \
 } catch (const rpc::ex_processing& e) { \
 	std::cerr << "ex_processing: " << e.msg << std::endl; \
 	return CLI_ERROR; \
-} catch (...) { \
-	std::cerr << "Undefined exception occured" << std::endl; \
+} catch (const std::exception& e) { \
+	std::cerr << "Undefined exception occured:" << e.what() << std::endl; \
 	return CLI_ERROR; \
 }
 
@@ -544,7 +544,6 @@ int	cmd_connect(struct cli_def *cli, const char *command, char *argv[], int argc
 ///////////////////////////////////////////////////////////////////////////////
 
 int	cmd_use(struct cli_def *cli, const char *command, char *argv[], int argc) {
-	std::vector<std::string> result;
 	size_t	space_needed;
 
 	VERBOSE_PRINT(command)
@@ -554,27 +553,44 @@ int	cmd_use(struct cli_def *cli, const char *command, char *argv[], int argc) {
 		return CLI_ERROR_ARG;
 	}
 
-	// We could create a dedicated RPC function such as "bool planning_exists(planning, routing)"
-	RPC_EXEC(client.get_handler()->get_available_planning_names(result, routing))
+	if ( std::string("current").compare(argv[0]) == 0 ) {
+		std::string	result = "";
 
-	if ( result.size() == 0 ) {
-		std::cerr << "No planning available" << std::endl;
-		return CLI_ERROR;
-	}
+		// We could create a dedicated RPC function such as "bool planning_exists(planning, routing)"
+		RPC_EXEC(client.get_handler()->get_current_planning_name(result, routing))
 
-	if ( std::find(result.begin(), result.end(), argv[0]) != result.end() ) {
-		routing.target_node.domain_name = argv[0];
-		routing.calling_node.domain_name = argv[0];
+		if ( result.size() > 0 ) {
+			routing.target_node.domain_name = result;
+			routing.calling_node.domain_name = result;
+		}
+	} else {
+		std::vector<std::string> result;
 
-		free(cli->promptchar);
-		space_needed = snprintf(NULL, 0, "%s:%s> ", routing.target_node.name.c_str(), routing.target_node.domain_name.c_str());
-		cli->promptchar = (char*) malloc(space_needed);
-		if ( snprintf(cli->promptchar, space_needed, "%s:%s> ", routing.target_node.name.c_str(), routing.target_node.domain_name.c_str()) == 0 ) {
-			printf("Cannot update the prompt!\n");
+		// We could create a dedicated RPC function such as "bool planning_exists(planning, routing)"
+		RPC_EXEC(client.get_handler()->get_available_planning_names(result, routing))
+
+		if ( result.size() == 0 ) {
+			std::cerr << "No planning available" << std::endl;
 			return CLI_ERROR;
 		}
-		return CLI_OK;
+
+		if ( std::find(result.begin(), result.end(), argv[0]) != result.end() ) {
+			routing.target_node.domain_name = argv[0];
+			routing.calling_node.domain_name = argv[0];
+		} else {
+			std::cerr << "Cannot find the planning " << argv[0] << std::endl;
+			return CLI_ERROR;
+		}
 	}
+
+	free(cli->promptchar);
+	space_needed = snprintf(NULL, 0, "%s:%s> ", routing.target_node.name.c_str(), routing.target_node.domain_name.c_str());
+	cli->promptchar = (char*) malloc(space_needed);
+	if ( snprintf(cli->promptchar, space_needed, "%s:%s> ", routing.target_node.name.c_str(), routing.target_node.domain_name.c_str()) == 0 ) {
+		printf("Cannot update the prompt!\n");
+		return CLI_ERROR;
+	}
+	return CLI_OK;
 
 	std::cerr << "Cannot find the given planning" << std::endl;
 	return CLI_ERROR;
@@ -680,6 +696,7 @@ int	main(const int argc, char const* argv[]) {
 			("output", boost::program_options::value<std::string>(), "the output format (plain or json)")
 			("domain", boost::program_options::value<std::string>(), "the domain to use")
 			("hostname", boost::program_options::value<std::string>(), "the endpoint")
+			("planning", boost::program_options::value<std::string>(), "the planning to use")
 		;
 
 		boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), opts_variables);
@@ -741,6 +758,15 @@ int	main(const int argc, char const* argv[]) {
 			cmd += opts_variables["domain"].as<std::string>();
 			cmd += " ";
 			cmd += opts_variables["hostname"].as<std::string>();
+			cli_run_command(cli, cmd.c_str());
+		}
+
+		/*
+		 * Do we have a given planning as argument?
+		 */
+		if ( opts_variables.count("planning") ) {
+			std::string cmd = "use ";
+			cmd += opts_variables["planning"].as<std::string>();
 			cli_run_command(cli, cmd.c_str());
 		}
 

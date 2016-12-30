@@ -27,6 +27,51 @@
 
 #include "text_processing.h"
 
+std::string	recovery_type_action_to_string(const rpc::t_recovery_type& t) {
+	switch (t.action) {
+		case rpc::e_rectype_action::RESTART:
+			return "restart";
+		case rpc::e_rectype_action::STOP_SCHEDULE:
+			return "stop";
+	}
+
+	return "";
+
+}
+
+std::string	time_constraint_type_to_string(const rpc::e_time_constraint_type::type& t) {
+	switch (t) {
+		case rpc::e_time_constraint_type::AT:
+			return "at";
+		case rpc::e_time_constraint_type::BEFORE:
+			return "before";
+		case rpc::e_time_constraint_type::AFTER:
+			return "after";
+	}
+
+	return "";
+}
+
+std::string	time_constraint_to_string(const rpc::t_time_constraint& tc) {
+	std::string	result;
+
+	result = time_constraint_type_to_string(tc.type);
+	result += " ";
+	result += tc.value;
+
+	return result;
+}
+
+std::string	strings_to_string(const std::vector<std::string>& v) {
+	std::string result = "";
+	BOOST_FOREACH(std::string s, v) {
+		result += s;
+		result += ",";
+	}
+
+	return result;
+}
+
 std::string	bool_to_string(const bool& v) {
 	if ( v == true )
 		return std::string("true");

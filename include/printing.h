@@ -48,6 +48,9 @@ void	print_node(const s_printing_options& opts, const uint& indent, const rpc::t
 void	print_jobs(const s_printing_options& opts, const uint& indent, const rpc::v_jobs& jobs);
 void	print_job(const s_printing_options& opts, const uint& indent, const rpc::t_job& job);
 
+void	print_time_constraints(const s_printing_options& opts, const uint& indent, const rpc::v_time_constraints& tcs);
+void	print_time_constraint(const s_printing_options& opts, const uint& indent, const rpc::t_time_constraint& tc);
+
 void	print_resources(const s_printing_options& opts, const uint& indent, const rpc::v_resources& resources);
 void	print_resource(const s_printing_options& opts, const uint& indent, const rpc::t_resource& resource);
 
