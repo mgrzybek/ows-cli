@@ -59,4 +59,5 @@ HEADERS		+= include/cli.h \
 	../open-workload-scheduler/src/gen-cpp/model_types.h \
 	../open-workload-scheduler/src/gen-cpp/model_constants.h \
 	../open-workload-scheduler/include/rpc_client.h \
-	../open-workload-scheduler/include/convertions.h
+	../open-workload-scheduler/include/convertions.h \
+    include/convertions.h
